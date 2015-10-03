@@ -75,7 +75,7 @@ public class TurretBehavoir : MonoBehaviour {
         }
 
         //Spin around in an attempt to find the target
-        transform.Rotate(new Vector3(0, 45*Time.deltaTime,0));
+        transform.Rotate(new Vector3(0, 45*Time.deltaTime*Time.timeScale,0));
 
         //Draw line to target for debugging purposes
         if(target != null)
@@ -198,7 +198,7 @@ public class TurretBehavoir : MonoBehaviour {
 
         //Creating a basic bitch sphere to work with
         GameObject bullet = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-
+        bullet.transform.name = "Bullet";
 
         //move to the correct location
         bullet.transform.position = bulletSpawn.position;
@@ -213,10 +213,11 @@ public class TurretBehavoir : MonoBehaviour {
         //Add physics//
         bullet.AddComponent<Rigidbody>();
         Rigidbody bulletBody = bullet.GetComponent<Rigidbody>();
+        bulletBody.useGravity = false;
 
         //Shooting Direction
         Vector3 shootingDirection = transform.TransformDirection(Vector3.forward).normalized;
-        int shootingForce = 50;
+        int shootingForce = 10;
 
         //Add a force to the bullet in the correct direction to simulate it launching from the turret
         bulletBody.AddForce(shootingDirection * shootingForce, ForceMode.Impulse);
