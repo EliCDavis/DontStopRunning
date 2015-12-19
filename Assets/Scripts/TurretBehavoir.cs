@@ -217,7 +217,7 @@ public class TurretBehavoir : MonoBehaviour {
 
         //Shooting Direction
         Vector3 shootingDirection = transform.TransformDirection(Vector3.forward).normalized;
-        int shootingForce = 10;
+        int shootingForce = 30;
 
         //Add a force to the bullet in the correct direction to simulate it launching from the turret
         bulletBody.AddForce(shootingDirection * shootingForce, ForceMode.Impulse);

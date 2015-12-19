@@ -132,7 +132,8 @@ public class PlayerPowerBehavior : MonoBehaviour {
             {
                 //Teleport if we hit something within our teleport distance
                 teleportTo(hit.point);
-            } else
+            } 
+			else
             {
                 //Just teleport into the air where ever we where aiming
                 teleportTo(ray.origin + (ray.direction*teleportDistance));
@@ -143,37 +144,45 @@ public class PlayerPowerBehavior : MonoBehaviour {
         //Power that "force pushes" Objects that have rigid bodies
         if (Input.GetButtonUp("Fire2"))
         {
-            //Grabs all rigid bodies in scene
-            Rigidbody[] rigidBodiesInScene = GameObject.FindObjectsOfType(typeof(Rigidbody)) as Rigidbody[];
-
-            //Iterate through all rigid bodies in the scene
-            for (int i = 0; i < rigidBodiesInScene.Length; i++)
-            {
-
-                //Distance from player
-                float distance = Vector3.Distance(rigidBodiesInScene[i].transform.position, transform.position);
-
-                //How far our power effects objects in the scene
-                float powerMaxDistance = 10f;
-
-                //ifi the object is close enough for our power to have an effect
-                if (distance < powerMaxDistance)
-                {
-
-                    //Determine how much force we want to add to the object ( The closer the stronger )
-                    float force = ((powerMaxDistance - distance)/ powerMaxDistance) * 20f;
-
-                    //Add that force in the direction the player is looking
-                    Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-                    rigidBodiesInScene[i].AddForce(ray.direction* force,ForceMode.Impulse);
-                }
-                
-            }
+			forcePush();
         }
 
     }
 
 
+	/// <summary>
+	/// Forces the push.
+	/// </summary>
+	void forcePush(){
+
+		//Grabs all rigid bodies in scene
+		Rigidbody[] rigidBodiesInScene = GameObject.FindObjectsOfType(typeof(Rigidbody)) as Rigidbody[];
+		
+		//Iterate through all rigid bodies in the scene
+		for (int i = 0; i < rigidBodiesInScene.Length; i++)
+		{
+			
+			//Distance from player
+			float distance = Vector3.Distance(rigidBodiesInScene[i].transform.position, transform.position);
+			
+			//How far our power effects objects in the scene
+			float powerMaxDistance = 10f;
+			
+			//ifi the object is close enough for our power to have an effect
+			if (distance < powerMaxDistance)
+			{
+				
+				//Determine how much force we want to add to the object ( The closer the stronger )
+				float force = ((powerMaxDistance - distance)/ powerMaxDistance) * 80f;
+				
+				//Add that force in the direction the player is looking
+				Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+				rigidBodiesInScene[i].AddForce(ray.direction* force,ForceMode.Impulse);
+			}
+			
+		}
+
+	}
 
 
     /// <summary>
@@ -228,7 +237,7 @@ public class PlayerPowerBehavior : MonoBehaviour {
         }
 
         //Arbitrary speed for how fast we want the player to move
-        float teleportSpeed = 45f;
+        float teleportSpeed = 65f;
 
         //Lerp the position to the desired position for teleportation
         transform.position = Vector3.Lerp(transform.position, positionTeleportingTo, teleportSpeed*Time.deltaTime*Time.timeScale);
