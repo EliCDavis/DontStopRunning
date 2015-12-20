@@ -11,6 +11,21 @@ public class Area  {
 	/// </summary>
 	Vector2 seed;
 
+	/// <summary>
+	/// The name of the area.
+	/// </summary>
+	string name;
+
+	/// <summary>
+	/// The biome of the area
+	/// </summary>
+	AreaBiome biome;
+
+	/// <summary>
+	/// A list of all the structures generated in the area
+	/// </summary>
+	List<Structure> structuresInArea;
+
 	public Area(string nameOfArea, AreaBiome setBiome, Vector2 seed){
 		name = nameOfArea;
 		biome = setBiome;
@@ -19,19 +34,30 @@ public class Area  {
 	}
 
 
-	string name;
 	public string getName(){
 		return name;
 	}
 
 
-	AreaBiome biome;
 	public AreaBiome getBiome(){
 		return biome;
 	}
 
+
+	public Vector2 getSeed(){
+		return seed;
+	}
+
+	/// <summary>
+	/// Takes the vector2 seed and uses it to create a single integer
+	/// to represent the seed.
+	/// </summary>
+	/// <returns>The flat seed.</returns>
+	public int getFlatSeed(){
+		return (int)(seed.x - seed.y);
+	}
+
 	
-	List<Structure> structuresInArea;
 	public void addStructureToArea(Structure structureToAdd){
 		structuresInArea.Add (structureToAdd);
 	}

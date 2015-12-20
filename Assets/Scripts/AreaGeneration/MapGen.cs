@@ -28,7 +28,6 @@ class MapGen{
 	{
 
 		scale = bumpyness;
-		Texture2D noise = CreateMap (civMap.width,civMap.height,Random.Range(0,100),Random.Range(0,100));
 
 		//Generate the smaller civ map in order to fit border in.
 		Texture2D shrunkCivMap = new Texture2D (civMap.width, civMap.height);

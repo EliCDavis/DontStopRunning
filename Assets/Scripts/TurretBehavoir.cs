@@ -224,7 +224,7 @@ public class TurretBehavoir : MonoBehaviour {
 
 
         //Add Behavoir
-        BulletBehavior bulletBehavoir = bullet.AddComponent<BulletBehavior>();
+        bullet.AddComponent<BulletBehavior>();
 
     }
 

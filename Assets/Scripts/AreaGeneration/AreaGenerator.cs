@@ -258,7 +258,7 @@ public class AreaGenerator : MonoBehaviour {
 				                                Random.Range(yStart+(structDimensions.y/2),yStart+heightofPlot- (structDimensions.y/2)));
 				                                
 				// Create the new structure
-				Structure newStructure = StructureFactory.createStructure(selectedBuild, currentArea, structPos);
+				Structure newStructure = StructureFactory.createStructure(selectedBuild, currentArea, structPos, (float)civLevel/100.0f);
 
 				// Set the structure's parent to the section it's being created in
 				newStructure.getGameObject().transform.parent = currentSectionBeingCreated.transform;
