@@ -4,6 +4,7 @@ using System.Collections;
 public enum StructureType{
 	Building,
 	Fort,
+	Substantial,
 	Hut
 }
 

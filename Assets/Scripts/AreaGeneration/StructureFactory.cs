@@ -8,23 +8,31 @@ public class StructureFactory  {
 
 	public static Vector2 structureDimensions(StructureType structure){
 		switch (structure) {
-				
-			case StructureType.Fort:
-				return new Vector2(25,10);
+			
+		case StructureType.Fort:
+			return new Vector2(25,10);
 
-			case StructureType.Building:
-				return new Vector2(10,10);
+		case StructureType.Building:
+			return new Vector2(10,10);
 
-			case StructureType.Hut:
-				return new Vector2(5,5);
+		case StructureType.Hut:
+			return new Vector2(5,5);
 
-			default:
-				Debug.LogError("Structure Dimensions Have Not Been Defined!");
-				return Vector2.zero;
+		case StructureType.Substantial:
+			return new Vector2(30,30);
+
+		default:
+			Debug.LogError("Structure Dimensions Have Not Been Defined!");
+			return Vector2.zero;
 		}
 	}
 
 	public static Structure createStructure(StructureType structure, Area area, Vector3 position, float civValue){
+
+		GameObject obj = buildStructure (structureDimensions (structure), area.getFlatSeed() + area.getStructuresInArea().Length, area.getBiome (), civValue);
+		obj.transform.position = position;
+
+		return new Structure(structure, obj, area);
 
 		GameObject sturctReference;
 
@@ -85,7 +93,8 @@ public class StructureFactory  {
 	/// <param name="height">Height.</param>
 	public static StructureType[] whatStuctureFitInPlot(int width, int height){
 		List<StructureType> typesThatFit = new List<StructureType>();
-		
+
+
 		if (structureDimensions (StructureType.Hut).x <= width && structureDimensions (StructureType.Hut).y <= height) {
 			typesThatFit.Add(StructureType.Hut);
 		}
@@ -98,6 +107,10 @@ public class StructureFactory  {
 		if (structureDimensions (StructureType.Fort).x <= width && structureDimensions (StructureType.Fort).y <= height) {
 			typesThatFit.Add(StructureType.Fort);
 		}
+		if (structureDimensions (StructureType.Substantial).x <= width && structureDimensions (StructureType.Substantial).y <= height) {
+			typesThatFit.Add(StructureType.Substantial);
+		}
+
 
 		return typesThatFit.ToArray ();
 
@@ -149,14 +162,28 @@ public class StructureFactory  {
 				for(int f = 0; f < floors; f ++){
 
 					// Just use a cube for now
-					GameObject module = GameObject.CreatePrimitive(PrimitiveType.Cube);
+					GameObject module = null;
+
+					int numOfWalls = numOfModulesTouching(blueprints, x, y);
+
+					if(numOfWalls == 1 && f == floors-1){
+					
+						module = Resources.Load("Structures/Civilization/Basic/1STop") as GameObject;
+						module = GameObject.Instantiate(module);
+					
+					} else {
+
+						module = GameObject.CreatePrimitive(PrimitiveType.Cube);
+						module.transform.localScale = Vector3.one*blockDimension;
+					
+					}
 
 					// Make sure the cube is apart of the parent
 					module.transform.SetParent(structure.transform);
 
 					// Set the appropriate position nd scale
 					module.transform.localPosition = (new Vector3(x,f,y))*blockDimension;
-					module.transform.localScale = Vector3.one*blockDimension;
+
 
 				}
 			
@@ -201,7 +228,7 @@ public class StructureFactory  {
 
 		heightOfBase = Mathf.CeilToInt(Mathf.Sqrt (magOfPlot));
 
-		heightOfBase = Mathf.RoundToInt(heightOfBase*civValue);
+		heightOfBase = Mathf.RoundToInt(heightOfBase*civValue*2.6f);
 
 		if(heightOfBase <= 0){
 			return null;
@@ -232,80 +259,27 @@ public class StructureFactory  {
 			
 		}
 
-
-		// Remove any modules that are astray from the bunch, and fill in any modules that create holes.
+		// Go through the blue prints and find holes or stray modules
 		for(int x = 0; x < blueprints.Length; x ++){
 			
 			for(int y = 0; y < blueprints[x].Length; y ++){
 
-			
-				// Build a list of valid positions to check.
-				Vector2[] posToCheck = new Vector2[4];
-
-				if(x + 1 < blueprints.Length){
-					posToCheck[0] = new Vector2(x+1, y);
-				}
-
-				if(x - 1 >= 0){
-					posToCheck[1] = new Vector2(x-1, y);
-				}
-
-				if(y + 1 < blueprints.Length){
-					posToCheck[2] = new Vector2(x, y+1);
-				}
+				int numofWalls = numOfModulesTouching (blueprints, x, y);
 				
-				if(y - 1 >= 0){
-					posToCheck[3] = new Vector2(x, y-1);
-				}
-
-				// Whether or not this is touching another module N,S,E, or W
-				bool validPos = false;
-
-				// Whether or not this is a hole
-				bool isHole = true;
-
-				for(int p = 0; p < posToCheck.Length; p ++){
-
-					// Is there a valid position on a certain side?
-					if(posToCheck[p] != null){
-
-						if( blueprints[(int)posToCheck[p].x][(int)posToCheck[p].y] != 0){
-
-							// We know we're valid because we're touching something
-							validPos = true;
-
-						} else {
-
-							// We know we're not a hole because theres nothing else touching us on this side
-							isHole = false;
-
-						}
-					
-					} else {
-
-						// We know we're not a hole because theres nothing else touching us
-						isHole = false;
-
-					}
-
-				}
-
 				// If we're not a valid position then flatten this module out
-				if( !validPos ){
+				if(numofWalls == 0){
 					blueprints[x][y] = 0;
 				}
-
+				
+				
 				// If we know this is a hole then let's fill it in!
-				if(isHole){
+				if(numofWalls == 4){
 					blueprints[x][y] = heightOfBase;
 				}
-
 
 			}
 
 		}
-
-
 
 		// If the height is one there's no need to add any apendages
 		if(heightOfBase <= 1){
@@ -313,9 +287,115 @@ public class StructureFactory  {
 		}
 
 		// Add appendages appropriately
+		for (int x = 0; x < blueprints.Length; x ++) {
+			
+			for (int y = 0; y < blueprints[x].Length; y ++) {
+
+				if(blueprints[x][y] == 0){
+
+					// Can we even add an appendage?
+					if(numOfModulesTouching(blueprints, x, y) != 0){
+
+						// Likelyhood of adding a new appendage
+						if(Random.Range(0f,1f) < civValue){
+
+							// Get height of appendage..
+							int heightOfAppendage = 1+ (int)(Random.Range(0,heightOfBase)*civValue);
+
+							// Set the appendage 
+							blueprints[x][y] = heightOfAppendage;
+
+						}
+
+					}
+
+				}
+
+			}
+
+		}
+
+		// Go through and fill in holes again.
+		for(int x = 0; x < blueprints.Length; x ++){
+			
+			for(int y = 0; y < blueprints[x].Length; y ++){
+
+				if(blueprints[x][y] == 0){
+					int numofWalls = numOfModulesTouching (blueprints, x, y);
+					
+					
+					
+					// If we know this is a hole then let's fill it in!
+					if(numofWalls == 4){
+						
+						// Get height of appendage..
+						int heightOfAppendage = 1+ (int)(Random.Range(0,heightOfBase)*civValue);
+						
+						blueprints[x][y] = heightOfAppendage;
+					}
+				}
+
+
+				
+			}
+			
+		}
 
 
 		return blueprints;
+
+	}
+
+	/// <summary>
+	/// The number of modules
+	/// </summary>
+	/// <returns>The of modules touching.</returns>
+	/// <param name="blueprints">Blueprints.</param>
+	/// <param name="xCord">X cord.</param>
+	/// <param name="yCord">Y cord.</param>
+	static int numOfModulesTouching(int[][] blueprints, int xCord, int yCord){
+
+		int numOfWalls = 0;
+
+		// Build a list of valid positions to check.
+		Vector2[] posToCheck = new Vector2[4];
+		
+		if(xCord + 1 < blueprints.Length){
+			posToCheck[0] = new Vector2(xCord+1, yCord);
+		}
+		
+		if(xCord - 1 >= 0){
+			posToCheck[1] = new Vector2(xCord-1, yCord);
+		}
+		
+		if(yCord + 1 < blueprints[xCord].Length){
+			posToCheck[2] = new Vector2(xCord, yCord+1);
+		}
+		
+		if(yCord - 1 >= 0){
+			posToCheck[3] = new Vector2(xCord, yCord-1);
+		}
+
+		
+		for(int p = 0; p < posToCheck.Length; p ++){
+			
+			// Is there a valid position on a certain side?
+			if(posToCheck[p] != null){
+				
+				if( blueprints[(int)posToCheck[p].x][(int)posToCheck[p].y] != 0){
+					
+					numOfWalls ++;
+					
+				}
+				
+			}
+
+			
+		}
+				
+				
+
+		return numOfWalls;
 
 	}
 

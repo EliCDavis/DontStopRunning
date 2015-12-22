@@ -266,6 +266,10 @@ public class AreaGenerator : MonoBehaviour {
 				// Add the structure to the area object we're building
 				currentArea.addStructureToArea(newStructure);
 
+				Vector3 curPos = newStructure.getGameObject().transform.position;
+
+				newStructure.getGameObject().transform.position = new Vector3(curPos.x,1.5f,curPos.z);
+
 			}
 
 
@@ -315,11 +319,11 @@ public class AreaGenerator : MonoBehaviour {
 
 		// Set the texture on the terrain that will represent civilization
 		material.SetTexture ("_MainTex", civArea);
-		material.SetTextureScale ("_MainTex", new Vector2(10,10));
+		material.SetTextureScale ("_MainTex", new Vector2(70,70));
 
 		// Set the texture on the terrain that will represent the wild.
 		material.SetTexture ("_PathTex", uncivArea);
-		material.SetTextureScale ("_PathTex", new Vector2(10,10));
+		material.SetTextureScale ("_PathTex", new Vector2(70,70));
 
 		// Set the alpha that determines whether or not to render the wild or the civilization texture.
 		material.SetTexture ("_PathMask", civMap);
@@ -361,12 +365,22 @@ public class AreaGenerator : MonoBehaviour {
 	public bool createAreaOnStart = true;
 	void Start () 
 	{
-		int areaWidthInSections = 15;
-		int areaHeightInSections = 15;
+		int areaWidthInSections = 30;
+		int areaHeightInSections = 30;
 		int thincknessOfSurroundedUncivilizedArea = 10;
 
 		if (createAreaOnStart) {
 			CreateArea (areaWidthInSections, areaHeightInSections, thincknessOfSurroundedUncivilizedArea);
+
+			GameObject player = Resources.Load("Player") as GameObject;
+			player = GameObject.Instantiate(player, 
+			                                new Vector3(
+												((float)areaWidthInSections/2.0f)*dimensionOfSection,
+												20f,
+												((float)areaHeightInSections/2.0f)*dimensionOfSection
+											), 
+			                                Quaternion.identity) as GameObject;
+
 		}
 
 	}
