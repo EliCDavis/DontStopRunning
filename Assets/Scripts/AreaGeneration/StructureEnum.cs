@@ -5,6 +5,7 @@ public enum StructureType{
 	Building,
 	Fort,
 	Substantial,
+	Large,
 	Hut
 }
 

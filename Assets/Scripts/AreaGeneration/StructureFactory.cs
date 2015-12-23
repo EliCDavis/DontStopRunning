@@ -21,6 +21,9 @@ public class StructureFactory  {
 		case StructureType.Substantial:
 			return new Vector2(30,30);
 
+		case StructureType.Large:
+			return new Vector2(50,50);
+
 		default:
 			Debug.LogError("Structure Dimensions Have Not Been Defined!");
 			return Vector2.zero;
@@ -107,6 +110,11 @@ public class StructureFactory  {
 		if (structureDimensions (StructureType.Fort).x <= width && structureDimensions (StructureType.Fort).y <= height) {
 			typesThatFit.Add(StructureType.Fort);
 		}
+
+		if (structureDimensions (StructureType.Substantial).x <= width && structureDimensions (StructureType.Substantial).y <= height) {
+			typesThatFit.Add(StructureType.Substantial);
+		}
+
 		if (structureDimensions (StructureType.Substantial).x <= width && structureDimensions (StructureType.Substantial).y <= height) {
 			typesThatFit.Add(StructureType.Substantial);
 		}
@@ -158,19 +166,179 @@ public class StructureFactory  {
 					continue;
 				}
 
+				int[][] wallInformation = wallsModuleIsTouching(blueprints, x, y);
+
 				// Build a module for each floor
 				for(int f = 0; f < floors; f ++){
 
 					// Just use a cube for now
 					GameObject module = null;
 
-					int numOfWalls = numOfModulesTouching(blueprints, x, y);
+					// The number of walls that are touching this floor
+					int numOfWallsTouchingThisFloor = 0;
 
-					if(numOfWalls == 1 && f == floors-1){
-					
-						module = Resources.Load("Structures/Civilization/Basic/1STop") as GameObject;
+					List<int> neighboringWallDirections = new List<int>();
+
+					// Find the walls touching this floor
+					for(int w = 0; w < wallInformation.Length; w ++){
+
+						if(wallInformation[w][1]  >= f + 1){
+
+							numOfWallsTouchingThisFloor ++;
+							neighboringWallDirections.Add(wallInformation[w][0]);
+
+						}
+
+					}
+
+					if(numOfWallsTouchingThisFloor == 0){
+
+						module = Resources.Load("Structures/Civilization/Basic/0STop") as GameObject;
 						module = GameObject.Instantiate(module);
+
+					} else if(numOfWallsTouchingThisFloor == 1){
 					
+						if(f == floors-1){
+							module = Resources.Load("Structures/Civilization/Basic/1STop") as GameObject;
+						} else {
+							module = Resources.Load("Structures/Civilization/Basic/1SMid") as GameObject;
+						}
+
+						module = GameObject.Instantiate(module);
+
+						// Find the correct rotation.
+						switch(neighboringWallDirections[0]){
+						
+						// East
+						case 0:
+							module.transform.Rotate(new Vector3(0,270,0));
+							break;
+
+						// West
+						case 1:
+							module.transform.Rotate(new Vector3(0,90,0));
+							break;
+
+						// North
+						case 2:
+							module.transform.Rotate(new Vector3(0,180,0));
+							break;
+
+						}
+
+					
+					} else if(numOfWallsTouchingThisFloor == 2){
+
+						// Grab the correct type of 2 sided wall
+						string typeOfWall = "I";
+
+						// Don't think about it just roll w/ it
+						int nwd = neighboringWallDirections[0] + neighboringWallDirections[1];
+						if(nwd > 1 && nwd < 5){
+							typeOfWall = "L";
+						}
+
+						// Instantiate the correct module
+						if(f == floors-1){
+							module = Resources.Load("Structures/Civilization/Basic/2S"+typeOfWall+"Top") as GameObject;
+						} else {
+							module = Resources.Load("Structures/Civilization/Basic/2S"+typeOfWall+"Mid") as GameObject;
+						}
+
+						module = GameObject.Instantiate(module);
+
+						// Set the correct rotation
+
+						if(typeOfWall.Equals("I")){
+
+							if(nwd == 5){
+								module.transform.Rotate(new Vector3(0,90,0));
+							}
+
+						} else {
+
+							if(neighboringWallDirections[0] == 0){
+
+								if(neighboringWallDirections[1] == 2){
+
+									module.transform.Rotate(new Vector3(0,180,0));
+
+								} else {
+
+									module.transform.Rotate(new Vector3(0,-90,0));
+
+								}
+
+							} else if( nwd == 3) {
+
+								module.transform.Rotate(new Vector3(0,90,0)); 
+
+							} else {
+
+								module.transform.Rotate(new Vector3(0,-0,0));
+
+							}
+
+						}
+
+
+					} else if(numOfWallsTouchingThisFloor == 3){
+
+						if(f == floors-1){
+							module = Resources.Load("Structures/Civilization/Basic/3STop") as GameObject;
+						} else {
+							module = Resources.Load("Structures/Civilization/Basic/3SMid") as GameObject;
+						}
+						
+						module = GameObject.Instantiate(module);
+
+						// rotate appropriately
+
+						// find wall it's not touching
+						int direction = 1234;
+						for(int w = 0; w < neighboringWallDirections.Count; w ++){
+							if(neighboringWallDirections[w] == 0){
+								direction -= 1000;
+							}
+							if(neighboringWallDirections[w] == 1){
+								direction -= 200;
+							}
+							if(neighboringWallDirections[w] == 2){
+								direction -= 30;
+							}
+							if(neighboringWallDirections[w] == 3){
+								direction -= 4;
+							}
+						}
+
+						switch(direction){
+							
+						case 1000:
+							module.transform.Rotate(new Vector3(0,90,0));
+							break;
+							
+						case 200:
+							module.transform.Rotate(new Vector3(0,-90,0));
+							break;
+							
+						case 30:
+							module.transform.Rotate(new Vector3(0,0,0));
+							break;
+
+						case 4:
+							module.transform.Rotate(new Vector3(0,180,0));
+							break;
+							
+						}
+
+					} else if(numOfWallsTouchingThisFloor == 4){
+
+						if(f == floors-1){
+							module = Resources.Load("Structures/Civilization/Basic/4STop") as GameObject;
+							module = GameObject.Instantiate(module);
+						} 
+						
+
 					} else {
 
 						module = GameObject.CreatePrimitive(PrimitiveType.Cube);
@@ -178,11 +346,16 @@ public class StructureFactory  {
 					
 					}
 
-					// Make sure the cube is apart of the parent
-					module.transform.SetParent(structure.transform);
 
-					// Set the appropriate position nd scale
-					module.transform.localPosition = (new Vector3(x,f,y))*blockDimension;
+					if(module != null){
+
+						// Make sure the cube is apart of the parent
+						module.transform.SetParent(structure.transform);
+						
+						// Set the appropriate position nd scale
+						module.transform.localPosition = (new Vector3(x,f,y))*blockDimension;
+
+					}
 
 
 				}
@@ -228,7 +401,7 @@ public class StructureFactory  {
 
 		heightOfBase = Mathf.CeilToInt(Mathf.Sqrt (magOfPlot));
 
-		heightOfBase = Mathf.RoundToInt(heightOfBase*civValue*2.6f);
+		heightOfBase = Mathf.RoundToInt(heightOfBase*civValue*1.2f);
 
 		if(heightOfBase <= 0){
 			return null;
@@ -321,9 +494,8 @@ public class StructureFactory  {
 			for(int y = 0; y < blueprints[x].Length; y ++){
 
 				if(blueprints[x][y] == 0){
+
 					int numofWalls = numOfModulesTouching (blueprints, x, y);
-					
-					
 					
 					// If we know this is a hole then let's fill it in!
 					if(numofWalls == 4){
@@ -332,22 +504,21 @@ public class StructureFactory  {
 						int heightOfAppendage = 1+ (int)(Random.Range(0,heightOfBase)*civValue);
 						
 						blueprints[x][y] = heightOfAppendage;
+
 					}
+
 				}
-
-
 				
 			}
 			
 		}
-
 
 		return blueprints;
 
 	}
 
 	/// <summary>
-	/// The number of modules
+	/// The number of modules that the current module is neighbor to
 	/// </summary>
 	/// <returns>The of modules touching.</returns>
 	/// <param name="blueprints">Blueprints.</param>
@@ -355,7 +526,32 @@ public class StructureFactory  {
 	/// <param name="yCord">Y cord.</param>
 	static int numOfModulesTouching(int[][] blueprints, int xCord, int yCord){
 
-		int numOfWalls = 0;
+		return wallsModuleIsTouching(blueprints, xCord, yCord).Length;
+
+	}
+
+
+	/// <summary>
+	/// Walls the module is touching at the current position
+	/// The length of the int is how many modules are touching
+	/// Inside the 2nd degree of the array contains 
+	/// which direction the wall is and how high the floor is.
+	/// Direction: 0:East, 1:West, 2:North, 3:South.
+	/// Example: val[x][y] = {2,4}
+	/// Means that this wall is to the north of the specified value
+	/// and  that it's 4 modules high.
+	/// 
+	/// WARNING: Don't change the values that represent the direction the
+	/// wall is in respect to the module in hand. These values are used for
+	/// determining what modules to instantiate for creating a building.
+	/// </summary>
+	/// <returns>The module is touching.</returns>
+	/// <param name="blueprints">Blueprints.</param>
+	/// <param name="xCord">X cord.</param>
+	/// <param name="yCord">Y cord.</param>
+	static int[][] wallsModuleIsTouching(int[][] blueprints, int xCord, int yCord){
+
+		List<int[]> walls = new List<int[]> ();
 
 		// Build a list of valid positions to check.
 		Vector2[] posToCheck = new Vector2[4];
@@ -375,28 +571,26 @@ public class StructureFactory  {
 		if(yCord - 1 >= 0){
 			posToCheck[3] = new Vector2(xCord, yCord-1);
 		}
-
 		
-		for(int p = 0; p < posToCheck.Length; p ++){
+		
+		for (int p = 0; p < posToCheck.Length; p ++) {
 			
 			// Is there a valid position on a certain side?
-			if(posToCheck[p] != null){
+			if (posToCheck [p] != null) {
 				
-				if( blueprints[(int)posToCheck[p].x][(int)posToCheck[p].y] != 0){
+				if (blueprints [(int)posToCheck [p].x] [(int)posToCheck [p].y] != 0) {
 					
-					numOfWalls ++;
+					walls.Add (new int[]{p,blueprints [(int)posToCheck [p].x] [(int)posToCheck [p].y]});
 					
 				}
 				
 			}
 
-			
 		}
-				
-				
 
-		return numOfWalls;
+		return walls.ToArray();;
 
 	}
+
 
 }
