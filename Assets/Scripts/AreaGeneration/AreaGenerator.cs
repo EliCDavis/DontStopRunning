@@ -46,6 +46,19 @@ public class AreaGenerator : MonoBehaviour {
 
 
 	/// <summary>
+	/// Things such as trees or bushes that will spawn where no civilization lies.
+	/// </summary>
+	public GameObject[] uncivilizedObjects = null;
+
+
+	/// <summary>
+	/// When placing uncivilized objects, how close they should be together on average.
+	/// Value from 0 to 1.
+	/// </summary>
+	public float uncivilizedObjectDensity = 0.5f;
+
+
+	/// <summary>
 	/// The integer area that is not occupied by any structure. used for path finding.
 	/// </summary>
 	List<Vector3> freeArea = new List<Vector3>();
@@ -174,6 +187,16 @@ public class AreaGenerator : MonoBehaviour {
 	}
 
 	/// <summary>
+	/// Civilization is based on the alpha value of a pixel in a Texture2D.
+	/// </summary>
+	/// <returns>The civilization value that corresponds to the given alpha, a value betwen 0 and 100</returns>
+	/// <param name="alphaValue">Alpha value from the civ map</param>
+	float getCivLevel(float alphaValue){
+		return 100 - (alphaValue * 100);
+	}
+
+
+	/// <summary>
 	/// RECURSIVE METHOD!   Will continue deviding plots into subplots unitil a limit is met or a desired
 	/// civilization density is met.
 	/// Average the color in the current civ map passed in, and builds civilization if the average is high enough.
@@ -187,7 +210,7 @@ public class AreaGenerator : MonoBehaviour {
 	void buildStructureOnPlot (float xStart ,float yStart, float widthOfPlot, float heightofPlot, Texture2D civMap){
 
 		// Get the amount of civilization the alphamap shows.
-		float civLevel = 100 - (getAvgColor (civMap).a * 100);
+		float civLevel = getCivLevel(getAvgColor (civMap).a);
 
 		//because this is a recursive method, and the picture is very curvy, it's possible that this method will keep 
 		//subdividing into the plot being .03 width and height.  This is how small it will subdivide.
@@ -280,6 +303,70 @@ public class AreaGenerator : MonoBehaviour {
 
 
 	/// <summary>
+	/// Spawns a number of uncivilized objects on the map based on 
+	/// the density and the dimensions of the sections of the map.
+	/// </summary>
+	/// <param name="sectionsInXDirection">Sections in X direction.</param>
+	/// <param name="sectionsInYDirection">Sections in Y direction.</param>
+	/// <param name="civMap">Civ map.</param>
+	void spawnUncivilizedObjects (int sectionsInXDirection, int sectionsInYDirection, Texture2D civMap)
+	{
+
+		// Can't spawn anything so return
+		if (uncivilizedObjects == null) {
+			return;
+		}
+
+		// Invalid density
+		if(uncivilizedObjectDensity < 0f || uncivilizedObjectDensity > 1f){
+			Debug.LogError("The object density : "+uncivilizedObjectDensity + " is an invalid value! it must be between 0 and 1");
+			return;
+		}
+
+		// Determine the amount of items we want to try to spawn.
+		int numOfObjectsToSpawn = (int)(dimensionOfSection * sectionsInXDirection * sectionsInYDirection * uncivilizedObjectDensity);
+
+		// Spawn x amount of objects
+		for (int i = 0; i < numOfObjectsToSpawn; i ++) {
+
+			// Grab a random spawn point
+			Vector3 spawnPoint = new Vector3(
+											 Random.Range(0,sectionsInXDirection*dimensionOfSection), 
+			                                 0, 
+											 Random.Range(0,sectionsInYDirection*dimensionOfSection)
+											 );
+
+
+			// Get the percentages of how far over the random position is.
+			float percentOfXDirection = spawnPoint.x / (sectionsInXDirection*dimensionOfSection);
+			float percentOfYDirection = spawnPoint.z / (sectionsInYDirection*dimensionOfSection);
+
+			// Determine the pixel based on the percentages.
+			int xPixel = (int)(civMap.width * percentOfXDirection);
+			int yPixel = (int)(civMap.height * percentOfYDirection);
+
+			// Get the civ value at the position.
+			float civValue = getCivLevel(civMap.GetPixel(xPixel,yPixel).a);
+
+			// Determine if the area is uncivilized enough to spawn an object.
+			if(civValue > civilizationNeededToReconsider){
+
+				// No good, move onto the next random position
+				continue;
+
+			}
+
+			// Get a object we want to spawn.
+			GameObject objToSpawn = uncivilizedObjects[Random.Range(0,uncivilizedObjects.Length-1)];
+
+			// Spawn the object
+			GameObject.Instantiate(objToSpawn, spawnPoint, Quaternion.identity);
+
+		}
+
+	}
+
+	/// <summary>
 	/// Generates terrain and the buildings that occupy the terrain.
 	/// </summary>
 	/// <param name="sectionsInXDirection">Sections in X direction.</param>
@@ -357,6 +444,8 @@ public class AreaGenerator : MonoBehaviour {
 			
 		}
 
+		// Spawn trees to make things look more full
+		spawnUncivilizedObjects (sectionsInXDirection, sectionsInYDirection, civMap);
 
 	}
 
