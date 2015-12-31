@@ -171,6 +171,10 @@ public class StructureFactory  {
 				// Build a module for each floor
 				for(int f = 0; f < floors; f ++){
 
+					// Whether or not to create a turret on this floor
+					bool createTurret = false;
+					
+
 					// Just use a cube for now
 					GameObject module = null;
 
@@ -232,15 +236,25 @@ public class StructureFactory  {
 						// Grab the correct type of 2 sided wall
 						string typeOfWall = "I";
 
+						float chancesOfTurret = .1f;
+
 						// Don't think about it just roll w/ it
 						int nwd = neighboringWallDirections[0] + neighboringWallDirections[1];
 						if(nwd > 1 && nwd < 5){
+
 							typeOfWall = "L";
+
 						}
 
 						// Instantiate the correct module
 						if(f == floors-1){
+
 							module = Resources.Load("Structures/Civilization/Basic/2S"+typeOfWall+"Top") as GameObject;
+
+							if(Random.Range(0f,1f) < chancesOfTurret && typeOfWall == "L"){
+								createTurret = true;
+							}
+
 						} else {
 							module = Resources.Load("Structures/Civilization/Basic/2S"+typeOfWall+"Mid") as GameObject;
 						}
@@ -248,7 +262,6 @@ public class StructureFactory  {
 						module = GameObject.Instantiate(module);
 
 						// Set the correct rotation
-
 						if(typeOfWall.Equals("I")){
 
 							if(nwd == 5){
@@ -351,9 +364,27 @@ public class StructureFactory  {
 
 						// Make sure the cube is apart of the parent
 						module.transform.SetParent(structure.transform);
-						
+
+						Vector3 positionForModule = (new Vector3(x,f,y))*blockDimension;
+
 						// Set the appropriate position nd scale
-						module.transform.localPosition = (new Vector3(x,f,y))*blockDimension;
+						module.transform.localPosition = positionForModule;
+
+
+						// Spawn a turret
+						if(createTurret){
+
+							// Load reference
+							GameObject referenceTurret = Resources.Load("Turret") as GameObject;
+
+							GameObject turret = GameObject.Instantiate(referenceTurret, positionForModule, Quaternion.identity) as GameObject;
+
+							turret.transform.SetParent(module.transform);
+							turret.transform.localPosition = Vector3.zero;
+
+							turret.transform.Translate(0,1.5f,0);
+
+						}
 
 					}
 

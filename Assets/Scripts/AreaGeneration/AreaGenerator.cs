@@ -459,8 +459,8 @@ public class AreaGenerator : MonoBehaviour {
 		int thincknessOfSurroundedUncivilizedArea = 10;
 
 		if (createAreaOnStart) {
-			CreateArea (areaWidthInSections, areaHeightInSections, thincknessOfSurroundedUncivilizedArea);
 
+			// Spawn the player because we can
 			GameObject player = Resources.Load("Player") as GameObject;
 			player = GameObject.Instantiate(player, 
 			                                new Vector3(
@@ -469,6 +469,11 @@ public class AreaGenerator : MonoBehaviour {
 												((float)areaHeightInSections/2.0f)*dimensionOfSection
 											), 
 			                                Quaternion.identity) as GameObject;
+
+			player.transform.name = "Player";
+
+			CreateArea (areaWidthInSections, areaHeightInSections, thincknessOfSurroundedUncivilizedArea);
+			
 
 		}
 

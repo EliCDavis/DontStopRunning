@@ -1,5 +1,7 @@
 using System;
+using System.Collections;
 using UnityEngine;
+using PlayerInGameControl;
 using UnityStandardAssets.CrossPlatformInput;
 
 namespace UnityStandardAssets.Characters.FirstPerson
@@ -24,7 +26,7 @@ namespace UnityStandardAssets.Characters.FirstPerson
             private bool m_Running;
 #endif
 
-            public void UpdateDesiredTargetSpeed(Vector2 input)
+			public void UpdateDesiredTargetSpeed(Vector2 input, PlayerBehavior playerBehavoir)
             {
 	            if (input == Vector2.zero) return;
 				if (input.x > 0 || input.x < 0)
@@ -44,7 +46,7 @@ namespace UnityStandardAssets.Characters.FirstPerson
 					CurrentTargetSpeed = ForwardSpeed;
 				}
 #if !MOBILE_INPUT
-	            if (Input.GetKey(RunKey))
+				if (Input.GetKey(RunKey) && playerBehavoir.requestBoostPower(1f))
 	            {
 		            CurrentTargetSpeed *= RunMultiplier;
 		            m_Running = true;
@@ -79,13 +81,20 @@ namespace UnityStandardAssets.Characters.FirstPerson
         public MovementSettings movementSettings = new MovementSettings();
         public MouseLook mouseLook = new MouseLook();
         public AdvancedSettings advancedSettings = new AdvancedSettings();
+		public AudioClip footstepSound = null;
 
 
+		/// <summary>
+		/// Reference to the main player behavoir that keeps up
+		/// with things such as UI and health and other central themes.
+		/// </summary>
+		private PlayerBehavior playerBehavoir = null;
         private Rigidbody m_RigidBody;
         private CapsuleCollider m_Capsule;
         private float m_YRotation;
         private Vector3 m_GroundContactNormal;
         private bool m_Jump, m_PreviouslyGrounded, m_Jumping, m_IsGrounded;
+		private float lastStepSoundEffect = 0f;
 
 
         public Vector3 Velocity
@@ -121,6 +130,7 @@ namespace UnityStandardAssets.Characters.FirstPerson
             m_RigidBody = GetComponent<Rigidbody>();
             m_Capsule = GetComponent<CapsuleCollider>();
             mouseLook.Init (transform, cam.transform);
+			playerBehavoir = gameObject.GetComponent<PlayerBehavior> ();
         }
 
 
@@ -166,12 +176,35 @@ namespace UnityStandardAssets.Characters.FirstPerson
                     m_RigidBody.velocity = new Vector3(m_RigidBody.velocity.x, 0f, m_RigidBody.velocity.z);
                     m_RigidBody.AddForce(new Vector3(0f, movementSettings.JumpForce, 0f), ForceMode.Impulse);
                     m_Jumping = true;
+
+					Debug.Log("Jump");
                 }
 
                 if (!m_Jumping && Mathf.Abs(input.x) < float.Epsilon && Mathf.Abs(input.y) < float.Epsilon && m_RigidBody.velocity.magnitude < 1f)
                 {
                     m_RigidBody.Sleep();
-                }
+					
+                } else {
+
+					// Make sure player is still giving input
+					if(CrossPlatformInputManager.GetAxis("Horizontal") != 0 || CrossPlatformInputManager.GetAxis("Vertical") != 0){
+
+						// Play Stepping sounds because we are moving!
+						
+						float stepSpeed = .3f;
+						
+						if(Input.GetKey(movementSettings.RunKey)){
+							stepSpeed = .2f;
+						}
+						
+						if(Time.time - lastStepSoundEffect > stepSpeed){
+							lastStepSoundEffect = Time.time;
+							gameObject.GetComponent<AudioSource>().PlayOneShot(footstepSound);
+						}
+
+					} 
+
+				}
             }
             else
             {
@@ -215,7 +248,7 @@ namespace UnityStandardAssets.Characters.FirstPerson
                     x = CrossPlatformInputManager.GetAxis("Horizontal"),
                     y = CrossPlatformInputManager.GetAxis("Vertical")
                 };
-			movementSettings.UpdateDesiredTargetSpeed(input);
+			movementSettings.UpdateDesiredTargetSpeed(input,playerBehavoir);
             return input;
         }
 
@@ -259,6 +292,7 @@ namespace UnityStandardAssets.Characters.FirstPerson
             {
                 m_Jumping = false;
             }
+
         }
     }
 }
