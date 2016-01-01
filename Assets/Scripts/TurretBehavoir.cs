@@ -81,7 +81,7 @@ public class TurretBehavoir : MonoBehaviour {
         if(target != null)
         {
             Vector3 toPlayer = target.transform.position - bulletSpawn.transform.position;
-            Debug.DrawLine(bulletSpawn.position, toPlayer * eyeSight);
+            //Debug.DrawLine(bulletSpawn.position, toPlayer * eyeSight);
         }
 
     }

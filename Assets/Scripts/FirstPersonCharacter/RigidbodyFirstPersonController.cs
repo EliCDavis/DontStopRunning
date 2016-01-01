@@ -182,7 +182,11 @@ namespace UnityStandardAssets.Characters.FirstPerson
 
                 if (!m_Jumping && Mathf.Abs(input.x) < float.Epsilon && Mathf.Abs(input.y) < float.Epsilon && m_RigidBody.velocity.magnitude < 1f)
                 {
-                    m_RigidBody.Sleep();
+                    
+					m_RigidBody.Sleep();
+
+					// Damage them as them as they stand still.
+					playerBehavoir.damage(5*Time.deltaTime);
 					
                 } else {
 
