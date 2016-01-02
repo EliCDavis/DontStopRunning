@@ -159,14 +159,21 @@ namespace PlayerInGameControl {
 						teleportTo(ray.origin + (ray.direction*teleportDistance));
 					}
 
+				} else {
+					Audio.SoundEffects.Play (Audio.SoundEffectType.NotEnoughBoostError);
 				}
 
 	        }
 
 	        //Power that "force pushes" Objects that have rigid bodies
-			if (Input.GetButtonUp("Fire2") && playerBehavoir.requestBoostPower(10f))
+			if (Input.GetButtonUp("Fire2"))
 	        {
-				forcePush();
+				if(playerBehavoir.requestBoostPower(10f)){
+					forcePush();
+				} else {
+					Audio.SoundEffects.Play (Audio.SoundEffectType.NotEnoughBoostError);
+				}
+
 	        }
 
 	    }

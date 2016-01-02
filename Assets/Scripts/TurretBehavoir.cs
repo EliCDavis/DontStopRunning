@@ -77,10 +77,10 @@ public class TurretBehavoir : MonoBehaviour {
         //Spin around in an attempt to find the target
         transform.Rotate(new Vector3(0, 45*Time.deltaTime*Time.timeScale,0));
 
-        //Draw line to target for debugging purposes
+        // Draw line to target for debugging purposes
         if(target != null)
         {
-            Vector3 toPlayer = target.transform.position - bulletSpawn.transform.position;
+            //Vector3 toPlayer = target.transform.position - bulletSpawn.transform.position;
             //Debug.DrawLine(bulletSpawn.position, toPlayer * eyeSight);
         }
 
@@ -91,18 +91,18 @@ public class TurretBehavoir : MonoBehaviour {
     /// </summary>
     void attackingPlayerUpdate()
     {
-        //If we can't see the target anymore then let's go back to searching for it in idle
+        // If we can't see the target anymore then let's go back to searching for it in idle
         if (!canSeeTarget())
         {
             currentState = TurretStates.Idle;
             return;
         }
 
-        //Draw line to target for debugging purposes
-        Vector3 toPlayer = target.transform.position - bulletSpawn.transform.position;
-        Debug.DrawLine(bulletSpawn.position, toPlayer * eyeSight, Color.red);
+        // Draw line to target for debugging purposes
+        //Vector3 toPlayer = target.transform.position - bulletSpawn.transform.position;
+        //Debug.DrawLine(bulletSpawn.position, toPlayer * eyeSight, Color.red);
 
-        //Look at the target and fire bullets at it
+        // Look at the target and fire bullets at it
         transform.LookAt(target.transform.position);
         fireUpdate();
 

@@ -483,11 +483,11 @@ public class AreaGenerator : MonoBehaviour {
 	Texture2D guiMapRenderTwo = null;
 	void OnGUI(){
 		if(guiMapRenderOne != null){
-			GUI.DrawTexture(new Rect(0,0,200,200),guiMapRenderOne );
-					}
+			//GUI.DrawTexture(new Rect(0,0,200,200),guiMapRenderOne );
+		}
 
 		if(guiMapRenderTwo !=null){
-			GUI.DrawTexture(new Rect(0,200,200,200),guiMapRenderTwo );
+			//GUI.DrawTexture(new Rect(0,200,200,200),guiMapRenderTwo );
 
 		} 
 	}

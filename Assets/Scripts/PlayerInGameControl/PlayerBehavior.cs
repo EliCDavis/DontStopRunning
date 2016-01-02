@@ -23,19 +23,19 @@ namespace PlayerInGameControl {
 		/// <summary>
 		/// The max boost a player can have.
 		/// </summary>
-		private float MAX_BOOST = 100;
+		private float MAX_BOOST = 200;
 
 
 		/// <summary>
 		/// The current boost the player has.
 		/// </summary>
-		public float currentBoost = 0;
+		private float currentBoost = 0;
 
 
 		/// <summary>
 		/// The time that we last utilized the boost power.
 		/// </summary>
-		public float lastTimeUsingBoost = 0f;
+		private float lastTimeUsingBoost = 0f;
 
 
 		/// <summary>
@@ -92,6 +92,7 @@ namespace PlayerInGameControl {
 
 			}
 
+
 			return false;
 
 		}
@@ -144,11 +145,11 @@ namespace PlayerInGameControl {
 			float timeAfterUseBeforeRecovery = 1f;
 
 			// If enough time hasn't elapsed then let's not bother increasing our boost meter
-			if(Time.time - lastTimeUsingBoost < timeAfterUseBeforeRecovery ){
+			if(Time.time - lastTimeUsingBoost < timeAfterUseBeforeRecovery){
 				return;
 			}
 
-			float boostRecoveryRate = 20f;
+			float boostRecoveryRate = 25f;
 			
 			currentBoost = Mathf.Clamp (currentBoost + (boostRecoveryRate*Time.deltaTime), 0, MAX_BOOST);
 			
@@ -163,6 +164,7 @@ namespace PlayerInGameControl {
 			currentBoost = MAX_BOOST;
 
 			playerUI = transform.FindChild ("PlayerUI").gameObject;
+
 		}
 
 

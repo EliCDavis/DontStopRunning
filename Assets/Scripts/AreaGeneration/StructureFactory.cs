@@ -236,7 +236,7 @@ public class StructureFactory  {
 						// Grab the correct type of 2 sided wall
 						string typeOfWall = "I";
 
-						float chancesOfTurret = .1f;
+						float chancesOfTurret = .05f;
 
 						// Don't think about it just roll w/ it
 						int nwd = neighboringWallDirections[0] + neighboringWallDirections[1];
