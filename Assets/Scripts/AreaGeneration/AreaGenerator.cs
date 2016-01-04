@@ -323,6 +323,9 @@ public class AreaGenerator : MonoBehaviour {
 			return;
 		}
 
+		// Create a parent object to keep up with all the objects we're about to spawn
+		GameObject uncivilizedObjectsParent = new GameObject ("Unciv Objects");
+
 		// Determine the amount of items we want to try to spawn.
 		int numOfObjectsToSpawn = (int)(dimensionOfSection * sectionsInXDirection * sectionsInYDirection * uncivilizedObjectDensity);
 
@@ -359,8 +362,9 @@ public class AreaGenerator : MonoBehaviour {
 			// Get a object we want to spawn.
 			GameObject objToSpawn = uncivilizedObjects[Random.Range(0,uncivilizedObjects.Length-1)];
 
-			// Spawn the object
-			GameObject.Instantiate(objToSpawn, spawnPoint, Quaternion.identity);
+			// Spawn the object and set it's parent.
+			objToSpawn = GameObject.Instantiate(objToSpawn, spawnPoint, Quaternion.identity) as GameObject;
+			objToSpawn.transform.parent = uncivilizedObjectsParent.transform;
 
 		}
 
