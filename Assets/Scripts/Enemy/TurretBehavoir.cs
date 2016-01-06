@@ -13,19 +13,25 @@ namespace Enemy {
 	    enum TurretStates { Idle, AttackingTarget }
 
 	    //The current state our turret is in, default to Idle where it's looking for the target
-	    TurretStates currentState = TurretStates.Idle;
+	    private TurretStates currentState = TurretStates.Idle;
 
 	    //How far out the turret can see
-	    float eyeSight = 25;
+		private float eyeSight = 25;
 
 	    //Field of view of our turret, at what angle can see.
-	    float fov = 30;
+		private float fov = 30;
 
 	    //Where we ant to fire bullets from
-	    Transform bulletSpawn;
+		private Transform bulletSpawn;
 
 	    //Target of the turret
-	    GameObject target;
+		private  GameObject target;
+
+		// The max amount of health the turret can havef
+		private int MAX_HEALTH = 100;
+
+		// The health the turret has
+		private int currentHealth = 100;
 
 		// Use this for initialization
 		void Start () {
@@ -35,6 +41,9 @@ namespace Enemy {
 
 	        //Define a target for the turret to look for and attack
 	        target = GameObject.Find("Player");
+
+			// Let the turret start out with max health.
+			currentHealth = MAX_HEALTH;
 
 	    }
 

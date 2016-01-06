@@ -107,7 +107,10 @@ namespace Audio {
 				return Resources.Load("Audio/FX/Error") as AudioClip;
 
 			case SoundEffectType.MenuSelect:  
-				return Resources.Load("Audio/FX/Select") as AudioClip;  
+				return Resources.Load("Audio/FX/Select") as AudioClip;
+
+			case SoundEffectType.MechChainGunShot:
+				return Resources.Load("Audio/FX/Gunshot") as AudioClip;
 
 			}
 

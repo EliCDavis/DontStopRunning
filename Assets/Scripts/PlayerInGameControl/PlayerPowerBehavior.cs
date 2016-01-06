@@ -96,7 +96,7 @@ namespace PlayerInGameControl {
 	    {
 
 	        //This will update our teleport marker
-			if (Input.GetButton("Fire1"))
+			if (Input.GetButton("Power1"))
 	        {
 
 	            //If we don't have a telport marker to show where we're going create one
@@ -131,7 +131,7 @@ namespace PlayerInGameControl {
 	        }
 
 	        //Check whether or not their trying to use a power
-			if (Input.GetButtonUp("Fire1"))
+			if (Input.GetButtonUp("Power1"))
 	        {
 
 	            //Don't need the indicator to where we're going to update now.
@@ -166,7 +166,7 @@ namespace PlayerInGameControl {
 	        }
 
 	        //Power that "force pushes" Objects that have rigid bodies
-			if (Input.GetButtonUp("Fire2"))
+			if (Input.GetButtonUp("Power2"))
 	        {
 				if(playerBehavoir.requestBoostPower(10f)){
 					forcePush();

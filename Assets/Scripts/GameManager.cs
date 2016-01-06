@@ -27,11 +27,20 @@ public class GameManager {
 
 	}
 
+
 	private LevelSetting currentLoadedLevelSettings = null;
+
 
 	public void loadLevel(LevelSetting settings){
 
 		currentLoadedLevelSettings = settings;
+
+	}
+
+
+	public LevelSetting getCurrentLoadedSettings(){
+
+		return currentLoadedLevelSettings;
 
 	}
 
