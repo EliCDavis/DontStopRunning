@@ -12,12 +12,33 @@ namespace PlayerInGameControl{
 		private Weapon rightArm;
 
 
+		public float getLeftArmHeat(){
+
+			if (leftArm == null) {
+				return 0f;
+			}
+
+			return 0;
+		}
+
+		public float getRightArmHeat(){
+
+			if (rightArm == null) {
+				return 0f;
+			}
+
+			return 0;
+		}
+
 		// Use this for initialization
 		void Start () {
 
-			leftArm = new Weapon (transform.FindChild("MainCamera").FindChild("Turret Cannons").FindChild("Left Arm").gameObject);
+			WeaponConfiguration chaingun = new WeaponConfiguration (3f, .05f, .25f, 0.05f);
+			chaingun.impactEffect = Resources.Load ("Particle/Bullet Impact") as GameObject;
 
-			rightArm = new Weapon (transform.FindChild("MainCamera").FindChild("Turret Cannons").FindChild("Right Arm").gameObject);
+			leftArm = new Weapon (transform.FindChild ("MainCamera").FindChild ("Turret Cannons").FindChild ("Left Arm").gameObject, chaingun);
+
+			rightArm = new Weapon (transform.FindChild ("MainCamera").FindChild ("Turret Cannons").FindChild ("Right Arm").gameObject, chaingun);
 
 		}
 		

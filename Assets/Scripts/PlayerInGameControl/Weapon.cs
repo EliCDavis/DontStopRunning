@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
-using Audio;
+using Enemy;
 
 namespace PlayerInGameControl{
 
@@ -37,31 +37,17 @@ namespace PlayerInGameControl{
 
 
 		/// <summary>
+		/// The weapon configuration that keeps up with info
+		/// such as fire rate, damage, projectiles, ect.
+		/// </summary>
+		private WeaponConfiguration weaponConfiguration;
+
+
+		/// <summary>
 		/// The current heat of the weapon.
 		/// At 1 the gun becomes overheated and must cool down
 		/// </summary>
 		private float currentHeat = 0f;
-
-
-		/// <summary>
-		/// How much heat is added to the weapon when it is used
-		/// </summary>
-		private float heatPerFireIncrement = 0.05f;
-
-
-		/// <summary>
-		/// The percentage of cooldown we receive per second.
-		/// Ex. If the rate is .25, in 4 seconds we will completely
-		/// cool down from overheating.
-		/// </summary>
-		private float cooldownRate = 0.25f;
-
-
-		/// <summary>
-		/// The fire rate of the weapon.
-		/// Cooldown time before next fire can happen
-		/// </summary>
-		private float fireRate = 0.05f;
 
 
 		/// <summary>
@@ -76,18 +62,82 @@ namespace PlayerInGameControl{
 		private GameObject weaponModel = null;
 
 
-		public Weapon(GameObject weaponModel){
+		/// <summary>
+		/// The bullet spawn of the weapon, where we should animate 
+		/// effects and raycast from.
+		/// </summary>
+		private Transform bulletSpawn = null;
 
-			this.weaponModel = weaponModel;
+
+
+		public Weapon(GameObject weaponObject, WeaponConfiguration weaponConfig){
+
+			if (weaponObject == null) {
+				return;
+			}
+
+			weaponConfiguration = weaponConfig;
+
+			this.weaponModel = weaponObject;
+
+			this.bulletSpawn = weaponModel.transform.FindChild ("BulletSpawn");
 
 		}
 
 
+
+		/// <summary>
+		/// Performs a ray cast and instantiates effects and deals damage appropriately
+		/// if a cast hits an enemy
+		/// </summary>
+		void castPain ()
+		{
+
+			// If we don't even have a bullet spawn to animate don't bother
+			if (bulletSpawn == null) return;
+
+			// Shoot from perspective of main camera
+			Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+
+			// Store the hit info
+			RaycastHit hit;
+
+
+			// If our raycast hit something
+			if (Physics.Raycast (ray, out hit, 100)) {
+
+				// Create a cute impact effect if we have one
+				if(weaponConfiguration.impactEffect != null){
+
+					Object.Instantiate(weaponConfiguration.impactEffect, hit.point, Quaternion.identity);
+
+				}
+
+				// Try grabbing the enemy instance
+				TurretBehavoir enemyHit = hit.collider.gameObject.GetComponent<TurretBehavoir>();
+
+				// Damage the enemy if there is one
+				if(enemyHit != null){
+
+					enemyHit.damage(weaponConfiguration.damagePerFire);
+				
+				}
+
+
+			}
+
+		}
+
+
+
+		/// <summary>
+		/// Fires the weapon if able to.
+		/// </summary>
 		public void fire(){
 
 
 			// Update heat since last fire
-			currentHeat = Mathf.Clamp( currentHeat - (Time.time - timeOfLastFire) * cooldownRate, 0f, 1f);
+			currentHeat = Mathf.Clamp( currentHeat - (Time.time - timeOfLastFire) * weaponConfiguration.cooldownRate, 0f, 1f);
 
 			// Make sure we can fire gun //
 
@@ -97,16 +147,17 @@ namespace PlayerInGameControl{
 			}
 
 			// Make sure enough time has elapsed since last fire
-			if(Time.time - timeOfLastFire < fireRate){
+			if(Time.time - timeOfLastFire < weaponConfiguration.fireRate){
 				return;
 			}
 
 
 			// Hurt whatever got in our way
+			castPain ();
 
 
 			// Add heat to the gun
-			currentHeat += heatPerFireIncrement;
+			currentHeat += weaponConfiguration.heatPerFireIncrement;
 
 			// Go into overheated state if we've become overheated
 			if(currentHeat >= 1f){
@@ -118,8 +169,6 @@ namespace PlayerInGameControl{
 
 			// Create Effects
 			animateFire ();
-
-			// Create hit effect at raycasted collision
 
 		}
 
@@ -141,7 +190,7 @@ namespace PlayerInGameControl{
 
 
 			// Check if enough time has passed to consider completely cooled down.
-			if(timeSinceLastFire * cooldownRate >= 1f){
+			if(timeSinceLastFire * weaponConfiguration.cooldownRate >= 1f){
 
 				// Change the state back to normal because it's cooled down now
 				currentState = WeaponState.Normal;
@@ -158,17 +207,14 @@ namespace PlayerInGameControl{
 		}
 
 
-
+		/// <summary>
+		/// Adds some flare to our fire.
+		/// Plays a sound and a particle emiter
+		/// </summary>
 		private void animateFire(){
 
 
-			// If we don't even have a weapon to animate don't bother
-			if (weaponModel == null) return;
-
-			// Get a reference to where the bullet spawn
-			Transform bulletSpawn = weaponModel.transform.FindChild ("BulletSpawn");
-
-			// If there is none something is wrong so don't bother
+			// If we don't even have a bullet spawn to animate don't bother
 			if (bulletSpawn == null) return;
 
 

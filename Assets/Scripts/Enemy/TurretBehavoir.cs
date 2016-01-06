@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using UnityEngine.UI;
 
 namespace Enemy {
 
@@ -16,10 +17,10 @@ namespace Enemy {
 	    private TurretStates currentState = TurretStates.Idle;
 
 	    //How far out the turret can see
-		private float eyeSight = 25;
+		private float eyeSight = 50;
 
 	    //Field of view of our turret, at what angle can see.
-		private float fov = 30;
+		private float fov = 40;
 
 	    //Where we ant to fire bullets from
 		private Transform bulletSpawn;
@@ -32,6 +33,9 @@ namespace Enemy {
 
 		// The health the turret has
 		private int currentHealth = 100;
+
+		[SerializeField]
+		private Slider healthBar;
 
 		// Use this for initialization
 		void Start () {
@@ -71,6 +75,41 @@ namespace Enemy {
 
 	        
 	    }
+
+
+		/// <summary>
+		/// Returns the percentage of health the turret has left.
+		/// </summary>
+		/// <returns>The remaining health percentage.</returns>
+		public float getRemainingHealthPercentage(){
+			return (float)currentHealth / (float)MAX_HEALTH;
+		}
+
+
+		/// <summary>
+		/// Deals damage to the turret and destroys it if health reaches 0
+		/// </summary>
+		/// <param name="amountOfDamage">Amount of damage.</param>
+		public void damage(float amountOfDamage){
+
+			currentHealth = (int)Mathf.Clamp (currentHealth - amountOfDamage, 0, MAX_HEALTH);
+
+			if(healthBar != null){
+				healthBar.value = getRemainingHealthPercentage();
+			}
+
+			if (currentHealth == 0) {
+
+				// Create a pretty little effect
+				Instantiate(Resources.Load("ExplosionPrefab") as GameObject, transform.position, Quaternion.identity);
+
+				// Delete the enemy from the scene.
+				Destroy(transform.parent.gameObject);
+			
+			}
+
+		}
+
 
 	    /// <summary>
 	    /// Behvaior the turret will execute when it is in its idle state.
