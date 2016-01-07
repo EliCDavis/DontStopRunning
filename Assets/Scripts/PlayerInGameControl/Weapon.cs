@@ -69,75 +69,41 @@ namespace PlayerInGameControl{
 		private Transform bulletSpawn = null;
 
 
-
+		/// <summary>
+		/// Initializes a new instance of the <see cref="PlayerInGameControl.Weapon"/> class.
+		/// </summary>
+		/// <param name="weaponObject">Weapon object, 3D model with a bullet spawn object as a child</param>
+		/// <param name="weaponConfig">Weapon config, different settings we want the weapon to operate under</param>
 		public Weapon(GameObject weaponObject, WeaponConfiguration weaponConfig){
 
+			// Set the weapon configurations
+			weaponConfiguration = weaponConfig;
+			
+			// Don't bother trying to get a bullet spawn from a null object
 			if (weaponObject == null) {
 				return;
 			}
 
-			weaponConfiguration = weaponConfig;
-
+			// Hook up bullet spawn and model 
 			this.weaponModel = weaponObject;
-
 			this.bulletSpawn = weaponModel.transform.FindChild ("BulletSpawn");
 
 		}
 
 
-
 		/// <summary>
-		/// Performs a ray cast and instantiates effects and deals damage appropriately
-		/// if a cast hits an enemy
+		/// Gets the current heat that the weapon has accumulated
 		/// </summary>
-		void castPain ()
-		{
-
-			// If we don't even have a bullet spawn to animate don't bother
-			if (bulletSpawn == null) return;
-
-			// Shoot from perspective of main camera
-			Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-
-			// Store the hit info
-			RaycastHit hit;
-
-
-			// If our raycast hit something
-			if (Physics.Raycast (ray, out hit, 100)) {
-
-				// Create a cute impact effect if we have one
-				if(weaponConfiguration.impactEffect != null){
-
-					Object.Instantiate(weaponConfiguration.impactEffect, hit.point, Quaternion.identity);
-
-				}
-
-				// Try grabbing the enemy instance
-				TurretBehavoir enemyHit = hit.collider.gameObject.GetComponent<TurretBehavoir>();
-
-				// Damage the enemy if there is one
-				if(enemyHit != null){
-
-					enemyHit.damage(weaponConfiguration.damagePerFire);
-				
-				}
-
-
-			}
-
+		/// <returns>The current heat.</returns>
+		public float getCurrentHeat(){
+			return Mathf.Clamp01(currentHeat - ((Time.time - timeOfLastFire) * weaponConfiguration.cooldownRate));
 		}
-
 
 
 		/// <summary>
 		/// Fires the weapon if able to.
 		/// </summary>
 		public void fire(){
-
-
-			// Update heat since last fire
-			currentHeat = Mathf.Clamp( currentHeat - (Time.time - timeOfLastFire) * weaponConfiguration.cooldownRate, 0f, 1f);
 
 			// Make sure we can fire gun //
 
@@ -146,21 +112,22 @@ namespace PlayerInGameControl{
 				return;
 			}
 
+			// Update heat since last fire
+			currentHeat = getCurrentHeat();
+
 			// Make sure enough time has elapsed since last fire
 			if(Time.time - timeOfLastFire < weaponConfiguration.fireRate){
 				return;
 			}
 
-
 			// Hurt whatever got in our way
 			castPain ();
 
-
 			// Add heat to the gun
-			currentHeat += weaponConfiguration.heatPerFireIncrement;
+			currentHeat = Mathf.Clamp01(currentHeat + weaponConfiguration.heatPerFireIncrement);
 
 			// Go into overheated state if we've become overheated
-			if(currentHeat >= 1f){
+			if(currentHeat == 1f){
 				currentState = WeaponState.Overheated;
 			}
 
@@ -178,24 +145,18 @@ namespace PlayerInGameControl{
 		/// if it has cooled down 
 		/// </summary>
 		/// <returns><c>true</c>, if overheated <c>false</c> otherwise.</returns>
-		private bool isOverheated(){
+		public bool isOverheated(){
 
 
 			// If we're not overheated 
 			if(currentState != WeaponState.Overheated) return false;
 			
 
-			// If we are overheated let's check if we're still overheated
-			float timeSinceLastFire = Time.time - timeOfLastFire;
-
-
 			// Check if enough time has passed to consider completely cooled down.
-			if(timeSinceLastFire * weaponConfiguration.cooldownRate >= 1f){
+			if(getCurrentHeat() == 0f){
 
 				// Change the state back to normal because it's cooled down now
 				currentState = WeaponState.Normal;
-				currentHeat = 0f;
-
 
 				return false;
 
@@ -208,15 +169,63 @@ namespace PlayerInGameControl{
 
 
 		/// <summary>
+		/// Performs a ray cast and instantiates effects and deals damage appropriately
+		/// if a cast hits an enemy
+		/// </summary>
+		private void castPain ()
+		{
+			
+			// If we don't even have a bullet spawn to animate don't bother
+			if (bulletSpawn == null) return;
+			
+			// Shoot from perspective of main camera
+			Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+
+			// Change up the ray cast direction based on accuracy of the weapon
+			ray.direction = new Vector3(
+									Random.Range(weaponConfiguration.Accuracy, 1f) * ray.direction.x,
+									Random.Range(weaponConfiguration.Accuracy, 1f) * ray.direction.y,
+									Random.Range(weaponConfiguration.Accuracy, 1f) * ray.direction.z
+	                            );
+
+			// Store the hit info
+			RaycastHit hit;
+			
+			// If our raycast hit something
+			if (Physics.Raycast (ray, out hit, 300)) {
+
+				// If we have a impact effect...
+				if(weaponConfiguration.impactEffect != null){
+
+					// Create the impact effect whereever our raycast hit
+					Object.Instantiate(weaponConfiguration.impactEffect, hit.point, Quaternion.identity);
+					
+				}
+				
+				// Try grabbing the enemy instance
+				TurretBehavoir enemyHit = hit.collider.gameObject.GetComponent<TurretBehavoir>();
+				
+				// If our impact actually was an enemy
+				if(enemyHit != null){
+
+					// Damage the enemy
+					enemyHit.damage(weaponConfiguration.damagePerFire);
+					
+				}
+				
+			}
+			
+		}
+
+
+		/// <summary>
 		/// Adds some flare to our fire.
 		/// Plays a sound and a particle emiter
 		/// </summary>
 		private void animateFire(){
 
-
 			// If we don't even have a bullet spawn to animate don't bother
 			if (bulletSpawn == null) return;
-
 
 			// Get a reference to the particle system
 			ParticleSystem particleSystem = bulletSpawn.GetComponent<ParticleSystem> ();
@@ -227,7 +236,6 @@ namespace PlayerInGameControl{
 				particleSystem.Play ();
 			
 			}
-
 
 			// Grab a reference to the audio source
 			AudioSource audioSource = bulletSpawn.GetComponent<AudioSource>();

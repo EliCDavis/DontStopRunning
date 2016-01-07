@@ -52,23 +52,31 @@ namespace PlayerInGameControl{
 		public float fireRate;
 
 
-		public WeaponConfiguration(float damagePerFire, float heatPerFireIncrement, float cooldownRate, float fireRate){
+		/// <summary>
+		/// The accuracy of the weapon clamped between values 0 and 1
+		/// </summary>
+		private float accuracy;
+
+
+		public WeaponConfiguration(float damagePerFire, float heatPerFireIncrement, float cooldownRate, float fireRate, float accuracy){
 
 			this.damagePerFire = damagePerFire;
 			this.heatPerFireIncrement = heatPerFireIncrement;
 			this.cooldownRate = cooldownRate;
 			this.fireRate = fireRate;
+			this.accuracy = Mathf.Clamp01(accuracy);
 			this.impactEffect = null;
 			this.projectile = null;
 
 		}
 
-		public WeaponConfiguration(float damagePerFire, float heatPerFireIncrement, float cooldownRate, float fireRate, GameObject impactEffect){
+		public WeaponConfiguration(float damagePerFire, float heatPerFireIncrement, float cooldownRate, float fireRate, float accuracy, GameObject impactEffect){
 			
 			this.damagePerFire = damagePerFire;
 			this.heatPerFireIncrement = heatPerFireIncrement;
 			this.cooldownRate = cooldownRate;
 			this.fireRate = fireRate;
+			this.accuracy = Mathf.Clamp01(accuracy);;
 			this.impactEffect = impactEffect;
 			this.projectile = null;
 			
@@ -90,6 +98,16 @@ namespace PlayerInGameControl{
 
 		}
 
+		public float Accuracy {
+
+			get {
+				return accuracy;
+			}
+			set {
+				accuracy = Mathf.Clamp01(value);
+			}
+
+		}
 	}
 
 }

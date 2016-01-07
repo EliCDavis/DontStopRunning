@@ -107,6 +107,7 @@ namespace PlayerInGameControl {
 
 			gameObject.GetComponent<PlayerPowerBehavior> ().enabled = canBeControlled;
 			gameObject.GetComponent<RigidbodyFirstPersonController> ().enabled = canBeControlled;
+			gameObject.GetComponent<WeaponBehavoir> ().enabled = canBeControlled;
 
 			// Lock the mouse to the center of the screen if the player is going to play
 			if (canBeControlled) {
