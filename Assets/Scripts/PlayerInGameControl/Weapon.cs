@@ -121,7 +121,13 @@ namespace PlayerInGameControl{
 			}
 
 			// Hurt whatever got in our way
-			castPain ();
+			if (weaponConfiguration.IsProjectileBased) {
+				launchProjectile();
+				Debug.Log("ProjectileBased");
+			} else {
+				castPain ();
+			}
+
 
 			// Add heat to the gun
 			currentHeat = Mathf.Clamp01(currentHeat + weaponConfiguration.heatPerFireIncrement);
@@ -176,7 +182,10 @@ namespace PlayerInGameControl{
 		{
 			
 			// If we don't even have a bullet spawn to animate don't bother
-			if (bulletSpawn == null) return;
+			if (bulletSpawn == null) {
+				Debug.LogError("The weapon has no bullet spawn child to properly fire weapon");
+				return;
+			}
 			
 			// Shoot from perspective of main camera
 			Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
@@ -215,6 +224,39 @@ namespace PlayerInGameControl{
 				
 			}
 			
+		}
+
+
+		private void launchProjectile(){
+
+			// What we want to instantiate
+			GameObject projectile = weaponConfiguration.Projectile.projectileModel;
+
+			// If we don't actually have a projectile to launch then don't bother.
+			if(projectile == null){
+				Debug.LogError("The weapon is labeled as projectile based but has no projectile set to launch");
+				return;
+			}
+
+			if (bulletSpawn == null) {
+				Debug.LogError("The weapon has no bullet spawn child to properly fire weapon");
+				return;
+			}
+
+			GameObject instance =  Object.Instantiate (projectile, bulletSpawn.position, bulletSpawn.rotation) as GameObject;
+
+			Vector3 launchForce = weaponConfiguration.Projectile.LaunchForce;
+
+			if(launchForce != Vector3.zero){
+
+				if(instance.GetComponent<Rigidbody>() != null){
+
+					instance.GetComponent<Rigidbody>().AddForce(launchForce);
+				
+				}
+
+			}
+
 		}
 
 

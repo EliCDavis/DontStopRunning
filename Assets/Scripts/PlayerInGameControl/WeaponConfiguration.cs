@@ -15,7 +15,7 @@ namespace PlayerInGameControl{
 		/// If there is a projectile to launch, then raycasting will be ignored, and 
 		/// the impact effect object will never be used.
 		/// </summary>
-		public GameObject projectile;
+		private ProjectileConfiguration projectile;
 
 
 		/// <summary>
@@ -58,17 +58,25 @@ namespace PlayerInGameControl{
 		private float accuracy;
 
 
+		/// <summary>
+		/// Determines whether or not the weapon is projectile based.
+		/// </summary>
+		private bool projectileBased;
+
+
 		public WeaponConfiguration(float damagePerFire, float heatPerFireIncrement, float cooldownRate, float fireRate, float accuracy){
 
 			this.damagePerFire = damagePerFire;
 			this.heatPerFireIncrement = heatPerFireIncrement;
 			this.cooldownRate = cooldownRate;
 			this.fireRate = fireRate;
-			this.accuracy = Mathf.Clamp01(accuracy);
+			this.Accuracy = accuracy;
 			this.impactEffect = null;
-			this.projectile = null;
+			this.projectile = new ProjectileConfiguration();
+			this.projectileBased = false;
 
 		}
+
 
 		public WeaponConfiguration(float damagePerFire, float heatPerFireIncrement, float cooldownRate, float fireRate, float accuracy, GameObject impactEffect){
 			
@@ -76,13 +84,30 @@ namespace PlayerInGameControl{
 			this.heatPerFireIncrement = heatPerFireIncrement;
 			this.cooldownRate = cooldownRate;
 			this.fireRate = fireRate;
-			this.accuracy = Mathf.Clamp01(accuracy);;
+			this.Accuracy = accuracy;
 			this.impactEffect = impactEffect;
-			this.projectile = null;
+			this.projectile = new ProjectileConfiguration();
+			this.projectileBased = false;
 			
 		}
 
 
+		public WeaponConfiguration(float damagePerFire, float heatPerFireIncrement, float cooldownRate, float fireRate, float accuracy, ProjectileConfiguration projectile){
+			
+			this.damagePerFire = damagePerFire;
+			this.heatPerFireIncrement = heatPerFireIncrement;
+			this.cooldownRate = cooldownRate;
+			this.fireRate = fireRate;
+			this.Accuracy = accuracy;
+			this.impactEffect = null;
+			this.projectile = projectile;
+			this.projectileBased = true;
+			
+		}
+
+
+
+		// TODO: Test this!
 		/// <summary>
 		/// Based on the current configurations, determines whether or not the gun
 		/// can ever overheat
@@ -107,6 +132,22 @@ namespace PlayerInGameControl{
 				accuracy = Mathf.Clamp01(value);
 			}
 
+		}
+
+		public bool IsProjectileBased {
+			get {
+				return projectileBased;
+			}
+		}
+
+		public ProjectileConfiguration Projectile {
+			get {
+				return projectile;
+			}
+			set {
+				projectile = value;
+				this.projectileBased = true;
+			}
 		}
 	}
 
