@@ -16,7 +16,10 @@ namespace PlayerInGameControl{
 
 		private Weapon rightArm;
 
-
+		/// <summary>
+		/// Returns the current percentage of heat that the weapon has accumulated
+		/// </summary>
+		/// <returns>The left arm heat.</returns>
 		private float getLeftArmHeat(){
 
 			if (leftArm == null) {
@@ -24,8 +27,13 @@ namespace PlayerInGameControl{
 			}
 
 			return leftArm.getCurrentHeat();
+		
 		}
 
+		/// <summary>
+		/// Returns the current percentage of heat that the weapon has accumulated.
+		/// </summary>
+		/// <returns>The right arm heat.</returns>
 		private float getRightArmHeat(){
 
 			if (rightArm == null) {
@@ -39,7 +47,7 @@ namespace PlayerInGameControl{
 		void Start () {
 
 			// Create a basic machine gun configuration
-			WeaponConfiguration chaingun = new WeaponConfiguration (2f, .04f,  .15f, 0.05f, .8f);
+			WeaponConfiguration chaingun = new WeaponConfiguration (4f, .02f,  .15f, 0.05f, .8f);
 			chaingun.impactEffect = Resources.Load ("Particle/Bullet Impact") as GameObject;
 			leftArm = new Weapon (transform.FindChild ("MainCamera").FindChild ("Turret Cannons").FindChild ("Left Arm").gameObject, chaingun);
 

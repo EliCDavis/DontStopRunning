@@ -159,11 +159,21 @@ namespace UnityStandardAssets.Characters.FirstPerson
                 desiredMove.x = desiredMove.x*movementSettings.CurrentTargetSpeed;
                 desiredMove.z = desiredMove.z*movementSettings.CurrentTargetSpeed;
                 desiredMove.y = desiredMove.y*movementSettings.CurrentTargetSpeed;
+
+				// If their trying to boost
+				if(CrossPlatformInputManager.GetButton("Jump") && !m_IsGrounded && playerBehavoir.requestBoostPower(1f)){
+					Debug.Log("Boost!");
+					m_RigidBody.AddForce(Vector3.up*5, ForceMode.Impulse);
+				}
+
+				// If we're not going to fast
                 if (m_RigidBody.velocity.sqrMagnitude <
                     (movementSettings.CurrentTargetSpeed*movementSettings.CurrentTargetSpeed))
                 {
+					// Apply Movement
                     m_RigidBody.AddForce(desiredMove*SlopeMultiplier(), ForceMode.Impulse);
                 }
+
             }
 
             if (m_IsGrounded)
@@ -292,6 +302,7 @@ namespace UnityStandardAssets.Characters.FirstPerson
                 m_IsGrounded = false;
                 m_GroundContactNormal = Vector3.up;
             }
+
             if (!m_PreviouslyGrounded && m_IsGrounded && m_Jumping)
             {
                 m_Jumping = false;

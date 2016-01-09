@@ -112,18 +112,17 @@ namespace PlayerInGameControl{
 				return;
 			}
 
-			// Update heat since last fire
-			currentHeat = getCurrentHeat();
-
 			// Make sure enough time has elapsed since last fire
 			if(Time.time - timeOfLastFire < weaponConfiguration.fireRate){
 				return;
 			}
 
+			// Update heat since last fire
+			currentHeat = getCurrentHeat();
+
 			// Hurt whatever got in our way
 			if (weaponConfiguration.IsProjectileBased) {
 				launchProjectile();
-				Debug.Log("ProjectileBased");
 			} else {
 				castPain ();
 			}
@@ -220,6 +219,17 @@ namespace PlayerInGameControl{
 					// Damage the enemy
 					enemyHit.damage(weaponConfiguration.damagePerFire);
 					
+				}
+
+				// Try grabbing instance of rigidbody
+				Rigidbody rBody = hit.collider.gameObject.GetComponent<Rigidbody>();
+
+				// If our object had a rigid body
+				if(rBody != null){
+
+					// Add force because that shit just got hit with a bullet. Knocks shit back man
+					rBody.AddForce(Vector3.Normalize(ray.direction)*2,ForceMode.Impulse);
+
 				}
 				
 			}

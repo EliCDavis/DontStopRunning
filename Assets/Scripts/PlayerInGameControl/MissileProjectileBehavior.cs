@@ -5,6 +5,13 @@ namespace PlayerInGameControl{
 
 	public class MissileProjectileBehavior : MonoBehaviour {
 
+		void Start(){
+
+			// Kill after 10 seconds if it hasn't hit anything
+			Destroy (gameObject, 10f);
+
+		}
+
 		[SerializeField]
 		private GameObject explosionEffect = null;
 
@@ -57,8 +64,11 @@ namespace PlayerInGameControl{
 
 			}
 
+			// Try grabbing an instance of the player
 			PlayerBehavior player = GameObject.FindObjectOfType<PlayerBehavior>();
 
+
+			// If we succesfully grabbed the player
 			if (player != null) {
 
 				// Get distance between it and us
