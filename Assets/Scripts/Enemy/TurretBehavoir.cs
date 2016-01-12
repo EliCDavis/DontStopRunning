@@ -276,6 +276,10 @@ namespace Enemy {
 	        //Add Behavoir
 	        bullet.AddComponent<BulletBehavior>();
 
+			// Try getting instance of Audio Source
+			AudioSource audio = bulletSpawn.GetComponent<AudioSource> ();
+			audio.Play ();
+
 	    }
 
 	}
