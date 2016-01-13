@@ -374,15 +374,8 @@ public class StructureFactory  {
 						// Spawn a turret
 						if(createTurret){
 
-							// Load reference
-							GameObject referenceTurret = Resources.Load("Turret") as GameObject;
-
-							GameObject turret = GameObject.Instantiate(referenceTurret, positionForModule, Quaternion.identity) as GameObject;
-
+							GameObject turret = EliDavis.Characters.Enemy.EnemyFactory.CreateTurret(positionForModule + new Vector3(0, 1.5f, 0));
 							turret.transform.SetParent(module.transform);
-							turret.transform.localPosition = Vector3.zero;
-
-							turret.transform.Translate(0,1.5f,0);
 
 						}
 

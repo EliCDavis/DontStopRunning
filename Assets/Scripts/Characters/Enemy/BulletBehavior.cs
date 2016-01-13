@@ -1,8 +1,8 @@
 ﻿using UnityEngine;
 using System.Collections;
-using PlayerInGameControl;
+using EliDavis.Characters.PlayerInGameControl;
 
-namespace Enemy {
+namespace EliDavis.Characters.Enemy {
 
 	/// <summary>
 	/// Bullet behavior we want to have happen for a bullet that is launched from a Turret
@@ -41,7 +41,7 @@ namespace Enemy {
 		/// </summary>
 		void damageCharacters(){
 
-			PlayerInGameControl.PlayerBehavior[] players = GameObject.FindObjectsOfType(typeof(PlayerInGameControl.PlayerBehavior)) as PlayerInGameControl.PlayerBehavior[];
+			PlayerBehavior[] players = GameObject.FindObjectsOfType(typeof(PlayerBehavior)) as PlayerInGameControl.PlayerBehavior[];
 
 			for (int i = 0; i < players.Length; i ++) {
 

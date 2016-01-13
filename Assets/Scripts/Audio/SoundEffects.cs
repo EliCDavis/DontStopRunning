@@ -1,7 +1,7 @@
 ﻿using UnityEngine;  
 using System.Collections;
 
-namespace Audio {
+namespace EliDavis.Audio {
 
 
 	/// <summary>

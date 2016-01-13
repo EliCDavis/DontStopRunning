@@ -1,8 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-
-namespace PlayerInGameControl {
+namespace EliDavis.Characters.PlayerInGameControl.Weaponry {
 
 	public struct ProjectileConfiguration {
 

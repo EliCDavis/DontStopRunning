@@ -2,7 +2,7 @@
 using System.Collections;
 using UnityEngine.UI;
 
-namespace PlayerInGameControl{
+namespace EliDavis.Characters.PlayerInGameControl.Weaponry {
 
 	public class WeaponBehavoir : MonoBehaviour {
 

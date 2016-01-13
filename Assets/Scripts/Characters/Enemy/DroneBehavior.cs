@@ -1,13 +1,13 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-namespace Enemy {
+namespace EliDavis.Characters.Enemy {
 
 
 	/// <summary>
 	/// This is the AI for a classic drone that can patrol areas and attack it's target from the sky.
 	/// </summary>
-	public class DroneBehavior : MonoBehaviour {
+	public class DroneBehavior : Character {
 
 		enum DroneState {
 
@@ -141,8 +141,6 @@ namespace Enemy {
 		void Start () {
 		
 			body = transform.GetComponent<Rigidbody> ();
-
-			setPatrolAirspace(new Rect (-50f, -50f, 100f, 100f), 20f);
 
 		}
 

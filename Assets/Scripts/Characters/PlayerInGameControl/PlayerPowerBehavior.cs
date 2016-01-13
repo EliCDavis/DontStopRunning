@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-namespace PlayerInGameControl {
+namespace EliDavis.Characters.PlayerInGameControl {
 
 	/// <summary>
 	/// This dictates the behavior of all the powers that the player has at 

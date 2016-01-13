@@ -1,7 +1,7 @@
 using System;
 using System.Collections;
 using UnityEngine;
-using PlayerInGameControl;
+using EliDavis.Characters.PlayerInGameControl;
 using UnityStandardAssets.CrossPlatformInput;
 
 namespace UnityStandardAssets.Characters.FirstPerson

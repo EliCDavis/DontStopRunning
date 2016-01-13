@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-namespace PlayerInGameControl {
+namespace EliDavis.Characters.PlayerInGameControl {
 
 	public class DeathScreen : MonoBehaviour {
 

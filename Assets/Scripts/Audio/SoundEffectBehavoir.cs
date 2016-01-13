@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-namespace Audio {
+namespace EliDavis.Audio {
 
 	/// <summary>
 	/// Helper class for the UI that allows buttons to play sound effects through

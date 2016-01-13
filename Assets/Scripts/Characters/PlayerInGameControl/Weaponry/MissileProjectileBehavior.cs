@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-namespace PlayerInGameControl{
+namespace EliDavis.Characters.PlayerInGameControl.Weaponry{
 
 	public class MissileProjectileBehavior : MonoBehaviour {
 
@@ -46,7 +46,7 @@ namespace PlayerInGameControl{
 		private void dealDamageToSurroundings (){
 
 			// Get all turrets in the scene
-			Enemy.TurretBehavoir[] turrets = GameObject.FindObjectsOfType(typeof(Enemy.TurretBehavoir)) as Enemy.TurretBehavoir[];
+			Character[] turrets = GameObject.FindObjectsOfType(typeof(Character)) as Character[];
 
 			// For every turret in the scene
 			for (int i = 0; i < turrets.Length; i ++) {
@@ -60,26 +60,6 @@ namespace PlayerInGameControl{
 					// Deal damage appropriataly based on the proximity of the explosion
 					turrets[i].damage( (1-(distance/maxDistance)) * damageToDeal);
 				
-				}
-
-			}
-
-			// Try grabbing an instance of the player
-			PlayerBehavior player = GameObject.FindObjectOfType<PlayerBehavior>();
-
-
-			// If we succesfully grabbed the player
-			if (player != null) {
-
-				// Get distance between it and us
-				float distance = Vector3.Distance(player.transform.position, transform.position);
-
-				// If we're within distance
-				if(distance <= maxDistance){
-					
-					// Deal damage appropriataly based on the proximity of the explosion
-					player.damage( (1-(distance/maxDistance)) * damageToDeal);
-					
 				}
 
 			}

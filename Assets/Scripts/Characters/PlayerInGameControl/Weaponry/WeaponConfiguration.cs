@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-namespace PlayerInGameControl{
+namespace EliDavis.Characters.PlayerInGameControl.Weaponry{
 
 
 	/// <summary>
@@ -10,7 +10,6 @@ namespace PlayerInGameControl{
 	public struct WeaponConfiguration {
 
 
-		// TODO: Create projectile's own configuration struct
 		/// <summary>
 		/// If there is a projectile to launch, then raycasting will be ignored, and 
 		/// the impact effect object will never be used.

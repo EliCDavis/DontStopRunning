@@ -1,8 +1,8 @@
 ﻿using UnityEngine;
 using System.Collections;
-using Enemy;
+using EliDavis.Characters.Enemy;
 
-namespace PlayerInGameControl{
+namespace EliDavis.Characters.PlayerInGameControl.Weaponry{
 
 
 	/// <summary>
@@ -206,12 +206,16 @@ namespace PlayerInGameControl{
 				if(weaponConfiguration.impactEffect != null){
 
 					// Create the impact effect whereever our raycast hit
-					Object.Instantiate(weaponConfiguration.impactEffect, hit.point, Quaternion.identity);
+					GameObject effect = Object.Instantiate(weaponConfiguration.impactEffect, hit.point, Quaternion.identity) as GameObject;
+
+					// TODO Add option to have this happen or not in weapon configuration
+					// Attatch the effect to what was hit so it moves with the object
+					effect.transform.parent = hit.transform;
 					
 				}
 				
 				// Try grabbing the enemy instance
-				TurretBehavoir enemyHit = hit.collider.gameObject.GetComponent<TurretBehavoir>();
+				Character enemyHit = hit.collider.gameObject.GetComponent<Character>();
 				
 				// If our impact actually was an enemy
 				if(enemyHit != null){

@@ -3,22 +3,16 @@ using UnityEngine;
 using System.Collections;
 using UnityEngine.UI;
 using UnityStandardAssets.Characters.FirstPerson;
+using EliDavis.Characters.PlayerInGameControl.Weaponry;
 
-namespace PlayerInGameControl {
-
-	public class PlayerBehavior : MonoBehaviour {
-
-		/// <summary>
-		/// The max health a player can have at one time.
-		/// </summary>
-		private float MAX_HEALTH = 100;
+namespace EliDavis.Characters.PlayerInGameControl {
 
 
-		/// <summary>
-		/// The current health of the player.
-		/// </summary>
-		private float currentHealth = 0;
-
+	/// <summary>
+	/// The logic that ties together other components of the player's control
+	/// such as their movement and powers
+	/// </summary>
+	public class PlayerBehavior :  Character {
 
 		/// <summary>
 		/// The max boost a player can have.
@@ -45,32 +39,19 @@ namespace PlayerInGameControl {
 
 
 		/// <summary>
-		/// Inflicts a certain amount of damage to the player and
-		/// performs a death check.
+		/// When the player dies we should disable their controls and show the death screen
 		/// </summary>
-		/// <param name="value">Value.</param>
-		public void damage(float value){
-			
-			if (value == 0f) {
-				return;
-			}
-			
-			currentHealth = Mathf.Clamp (currentHealth - Mathf.Abs (value), 0, MAX_HEALTH);
+		protected override void OnDie(){
 
-			// If we're dead
-			if(currentHealth == 0f){
-
-				// Disable the UI that shows things such as health
-				playerUI.GetComponent<Canvas>().enabled = false;
-
-				// Display the on death UI
-				transform.FindChild("OnDeathScreen").GetComponent<Canvas>().enabled = true;
-
-				// Disable the player from moving around
-				setPlayerControl(false);
+			// Disable the UI that shows things such as health
+			playerUI.GetComponent<Canvas>().enabled = false;
 			
-			} 
+			// Display the on death UI
+			transform.FindChild("OnDeathScreen").GetComponent<Canvas>().enabled = true;
 			
+			// Disable the player from moving around
+			setPlayerControl(false);
+
 		}
 
 
@@ -91,7 +72,6 @@ namespace PlayerInGameControl {
 				return true;
 
 			}
-
 
 			return false;
 
@@ -132,6 +112,7 @@ namespace PlayerInGameControl {
 			
 			playerUI.transform.FindChild ("Health").GetComponent<Slider>().value = currentHealth / MAX_HEALTH;
 			playerUI.transform.FindChild ("Booster").GetComponent<Slider>().value = currentBoost / MAX_BOOST;
+			playerUI.transform.FindChild ("Kill Count").GetComponent<Text>().text = "Kills: "+GameManagement.GameManager.getInstance().getEnemiesKilledSinceLevelStart();
 			
 		}
 

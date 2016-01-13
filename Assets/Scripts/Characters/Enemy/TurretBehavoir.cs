@@ -2,13 +2,13 @@
 using System.Collections;
 using UnityEngine.UI;
 
-namespace Enemy {
+namespace EliDavis.Characters.Enemy {
 
 	/// <summary>
 	/// Artificial Behvaior given to a turret that seeks out a target and when found fires at it.
 	/// If it does not have a target it will just stay in idle state.
 	/// </summary>
-	public class TurretBehavoir : MonoBehaviour {
+	public class TurretBehavoir : Character {
 
 	    //Defining a list of states our Turret can be in
 	    enum TurretStates { Idle, AttackingTarget }
@@ -28,11 +28,6 @@ namespace Enemy {
 	    //Target of the turret
 		private  GameObject target;
 
-		// The max amount of health the turret can havef
-		private int MAX_HEALTH = 100;
-
-		// The health the turret has
-		private int currentHealth = 100;
 
 		[SerializeField]
 		private Slider healthBar;
@@ -87,29 +82,25 @@ namespace Enemy {
 
 
 		/// <summary>
-		/// Deals damage to the turret and destroys it if health reaches 0
+		/// Whenever we take damage update the health bar above our head
 		/// </summary>
-		/// <param name="amountOfDamage">Amount of damage.</param>
-		public void damage(float amountOfDamage){
-
-			currentHealth = (int)Mathf.Clamp (currentHealth - amountOfDamage, 0, MAX_HEALTH);
+		protected override void OnDamage ()
+		{
 
 			if(healthBar != null){
 				healthBar.value = getRemainingHealthPercentage();
 			}
 
-			if (currentHealth == 0) {
-
-				// Create a pretty little effect
-				Instantiate(Resources.Load("ExplosionPrefab") as GameObject, transform.position, Quaternion.identity);
-
-				// Delete the enemy from the scene.
-				Destroy(transform.parent.gameObject);
-			
-			}
-
 		}
 
+		protected override void OnDie ()
+		{
+			// Create a pretty little effect
+			Instantiate(Resources.Load("ExplosionPrefab") as GameObject, transform.position, Quaternion.identity);
+			
+			// Delete the enemy from the scene.
+			Destroy(transform.parent.gameObject);
+		}
 
 	    /// <summary>
 	    /// Behvaior the turret will execute when it is in its idle state.
@@ -278,7 +269,11 @@ namespace Enemy {
 
 			// Try getting instance of Audio Source
 			AudioSource audio = bulletSpawn.GetComponent<AudioSource> ();
-			audio.Play ();
+
+			// If able to get an instance of audio source than play it
+			if (audio != null) {
+				audio.Play ();
+			}
 
 	    }
 
