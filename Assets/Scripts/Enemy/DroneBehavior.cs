@@ -1,6 +1,5 @@
 ﻿using UnityEngine;
 using System.Collections;
-using System.Linq;
 
 namespace Enemy {
 
@@ -83,9 +82,9 @@ namespace Enemy {
 
 
 		/// <summary>
-		/// The waypoint the drone is currentely persuing
+		/// The waypoint's position the drone is currentely persuing
 		/// </summary>
-		private Vector2 currentWayPointMovingToPostion;
+		private Vector2 currentWayPointMovingTo;
 
 
 		/// <summary>
@@ -96,6 +95,7 @@ namespace Enemy {
 		/// <param name="altitudeToPatrol">Altitude from the ground the drone will hover.</param>
 		public void setPatrolAirspace(Rect airspace, float altitudeToPatrol){
 
+			// Update our airspace
 			patrolAirspace = airspace;
 
 			// Sanatize Data
@@ -104,37 +104,36 @@ namespace Enemy {
 			// Create waypoints based on the airspace and how high we patrol at //
 
 			// Determine how much area we can see based on our field of view and altitude
-			float distanceAcrossGround = Mathf.Tan(fov*Mathf.Deg2Rad)*desiredHeighFromGround*2;
+			float distanceAcrossGround = Mathf.Tan(fov*Mathf.Deg2Rad/2)*desiredHeighFromGround*2;
 
 			// Determine how much sections the airspace must be broken into to be patrolled
 			int sectionsX = Mathf.CeilToInt (airspace.width / distanceAcrossGround);
 			int sectionsY = Mathf.CeilToInt (airspace.height / distanceAcrossGround);
 
-
 			// Build waypoints based on sections
 			Vector2[][] waypoints = new Vector2[sectionsX][];
 
-
-
 			for(int x = 0; x < sectionsX; x ++){
 
+				// Start a new column
 				waypoints[x] = new Vector2[sectionsY];
 
 				for(int y = 0; y < sectionsY; y ++){
+
 					waypoints[x][y] = new Vector2(patrolAirspace.x + ((float)(patrolAirspace.width/sectionsX)*(x+.5f)), 
 					                              patrolAirspace.y + ((float)(patrolAirspace.height/sectionsY)*(y+.5f)));
 
 					// Debugging purposes to see where the waypoints are
-					GameObject sphere = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-					Destroy(sphere.GetComponent<Collider>());
-					sphere.transform.position = new Vector3(waypoints[x][y].x, altitudeToPatrol, waypoints[x][y].y);
+//					GameObject sphere = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+//					Destroy(sphere.GetComponent<Collider>());
+//					sphere.transform.position = new Vector3(waypoints[x][y].x, altitudeToPatrol, waypoints[x][y].y);
 				}
 
 			}
 
 			waypointsToPatrol = waypoints;
 
-			currentWayPointMovingToPostion = getClosestPatrolWaypoint ();
+			currentWayPointMovingTo = getClosestPatrolWaypoint ();
 
 		}
 
@@ -143,11 +142,14 @@ namespace Enemy {
 		
 			body = transform.GetComponent<Rigidbody> ();
 
-			setPatrolAirspace(new Rect (-50f, -50f, 100f, 100f), 10f);
+			setPatrolAirspace(new Rect (-50f, -50f, 100f, 100f), 20f);
 
 		}
 
 
+		/// <summary>
+		/// Fix update used for any calls to rigidbodies.
+		/// </summary>
 		void FixedUpdate (){
 
 
@@ -182,12 +184,38 @@ namespace Enemy {
 		}
 
 
-		private Vector2 patrolMovingDirection = new Vector2(1,1);
-
+		/// <summary>
+		/// The update function for keeping the drone moving to it's different waypoints while looking
+		/// for potential targets to persue
+		/// </summary>
 		private void patrolUpdate(){
 		
-			gyroscopicAutopilotUpdate (desiredHeighFromGround);
+			// Raycast to ground to determine how high we are
+			float groundAltitude = 0;
 
+			Ray ray = new Ray (transform.position, Vector3.down);
+
+			RaycastHit hit;
+
+			if (Physics.Raycast (ray, out hit, 10000)) {
+			
+				groundAltitude = hit.point.y;
+			
+			} else {
+				// No ground underneath us, what do we do with our lives
+
+				// TODO Figure out what to do when theres no ground underneath us
+			}
+
+			// TODO: raycast in all directions to make sure we don't hit shit
+
+			// Keep it at the height we'd like
+			gyroscopicAutopilotUpdate (groundAltitude + desiredHeighFromGround);
+
+			// Can't patrol shit without waypoints
+			if(waypointsToPatrol == null){
+				return;
+			}
 
 			// If we're not within an acceptable range to be considered
 			// at our desired way point
@@ -197,21 +225,88 @@ namespace Enemy {
 			// we've arived at the waypoint, get a new one
 			else {
 
+				currentWayPointMovingTo = getNextWaypointInPatrol();
 
 			}
 
+			// TODO: Look for potential targets
 
 		}
 
 
+		/// <summary>
+		/// whenever the drone needs a new way point to patrol, it will move 
+		/// through the indexes of the jagged array to get one.
+		/// </summary>
+		private Vector2 patrolMovingDirection = new Vector2(1,1);
+
+
+		/// <summary>
+		/// Gets the next waypoint in patrol based on the current one we're at and our moving direction
+		/// </summary>
+		/// <returns>The next waypoint to move to.</returns>
+		private Vector2 getNextWaypointInPatrol(){
+
+			Vector2 newWaypoint = currentWayPointMovingTo;
+
+			int nextX = (int)(newWaypoint.x + patrolMovingDirection.x);
+			
+			// We've reached the end of one side
+			if(nextX == waypointsToPatrol.Length || nextX == -1){
+				
+				int nextY = (int)(newWaypoint.y + patrolMovingDirection.y);
+				
+				// We're in the very corner
+				if(nextY == waypointsToPatrol[(int)newWaypoint.x].Length || nextY == -1){
+					
+					// Make the drone turn around completely
+					patrolMovingDirection *= -1;
+					
+				} 
+				
+				// We're only on the edge of the x coordinate system
+				else {
+					
+					// Change direction heading in the x coordinate plane
+					patrolMovingDirection.x *= -1;
+					
+				}
+				
+				// Change waypoint
+				newWaypoint.y += patrolMovingDirection.y;
+				
+			} else {
+				
+				// Change waypoint
+				newWaypoint.x += patrolMovingDirection.x;
+				
+			}
+			
+			newWaypoint = new Vector2(Mathf.Clamp(newWaypoint.x, 0, waypointsToPatrol.Length-1),
+			                          Mathf.Clamp(newWaypoint.y, 0, waypointsToPatrol[0].Length-1));
+
+			return newWaypoint;
+
+		}
+
+
+		/// <summary>
+		/// Moves the drone towards the way point currentely assigned for patrol
+		/// </summary>
 		private void moveTowardsWayPoint(){
 
+			Vector2 wayPoint = getPositionOfWaypoint(currentWayPointMovingTo);
+
 			// Get the direction the turret needs to move in to get to the waypoint
-			Vector3 directionOfWaypoint = new Vector3(currentWayPointMovingToPostion.x, transform.position.y, currentWayPointMovingToPostion.y) - transform.position;
+			Vector3 directionOfWaypoint = new Vector3(wayPoint.x, transform.position.y, wayPoint.y) - transform.position;
+
+			//TODO Implement this functionality using rigidbody forces!
 
 			// If our velocity is not in the same direction
 				// add force to cancel out the velocity
 				// add force to start heading in the right direction
+
+			transform.position = Vector3.MoveTowards (transform.position, new Vector3(wayPoint.x, transform.position.y, wayPoint.y), 10*Time.deltaTime);
 
 				
 		}
@@ -224,7 +319,7 @@ namespace Enemy {
 		private void gyroscopicAutopilotUpdate (float altToBe){
 
 			// How fast we want to ascend and descend.
-			float speed = 150f;
+			float speed = 250f;
 
 			// If we're not within an acceptable range of our desired height.
 			if (Mathf.Abs (transform.position.y - altToBe) > acceptableRange) {
@@ -240,8 +335,8 @@ namespace Enemy {
 
 				}
 		
-				// If we're not moving at all in terms of altitude
-				if( Mathf.Approximately(yVelocity, 0f) ){
+				// If we're not moving fast enough
+				if( yVelocity < .1 ){
 
 					// Start moving us in the appropriate direction
 					body.AddForce (Mathf.Sign(altToBe - transform.position.y)*speed*Vector3.up*body.mass, ForceMode.Force);
@@ -268,22 +363,28 @@ namespace Enemy {
 
 		/// <summary>
 		/// Gets the closest waypoint relative to the drone's position
+		/// 
+		/// Returning 1, 2 does not mean the position 1, 2, but the indexes
+		/// in our waypoint jagged array [1][2], which references the actual position
 		/// </summary>
 		/// <returns>The closest waypoint.</returns>
 		private Vector2 getClosestPatrolWaypoint(){
-
-			Vector2[] flattenedArray = waypointsToPatrol.SelectMany (x=>x).ToArray();
 
 			float clostestDistance = 100000000f;
 
 			Vector2 waypoint = Vector2.zero;
 
-			for (int i = 0; i < flattenedArray.Length; i ++) {
+			for (int x = 0; x < waypointsToPatrol.Length; x ++) {
 
-				float distance = Vector2.Distance(flattenedArray[i], new Vector2(transform.position.x,transform.position.y));
+				for (int y = 0; y < waypointsToPatrol[x].Length; y ++) {
 
-				if(distance < clostestDistance){
-					waypoint = flattenedArray[i];
+					float distance = Vector2.Distance(waypointsToPatrol[x][y], new Vector2(transform.position.x,transform.position.y));
+					
+					if(distance < clostestDistance){
+						waypoint = new Vector2(x,y);
+						clostestDistance = distance;
+					}
+
 				}
 
 			}
@@ -303,9 +404,24 @@ namespace Enemy {
 		}
 
 
-
+		/// <summary>
+		/// Returns the distance the drone is from the current
+		/// patrol waypoint assigned
+		/// WARNING: This ignores alititude!
+		/// </summary>
+		/// <returns>The from current patrol waypoint.</returns>
 		private float distanceFromCurrentPatrolWaypoint(){
-			return Vector3.Distance (new Vector2(transform.position.x, transform.position.y), currentWayPointMovingToPostion);
+			return Vector2.Distance (new Vector2(transform.position.x, transform.position.z), getPositionOfWaypoint(currentWayPointMovingTo));
+		}
+
+
+		/// <summary>
+		/// Returns the value that our jagged array of waypoints contains 
+		/// </summary>
+		/// <returns>The position of waypoint.</returns>
+		/// <param name="waypoint">Waypoint.</param>
+		private Vector2 getPositionOfWaypoint(Vector2 waypoint){
+			return waypointsToPatrol[(int)waypoint.x][(int)waypoint.y];
 		}
 
 	}
