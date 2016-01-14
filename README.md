@@ -36,7 +36,7 @@ Turrets are simple and easy target for any player which helps train firing in a 
 ![First Turret Iteration](http://i.imgur.com/T8GkZEX.jpg)
 
 #### Drone
-*The drone is currentely being worked on.*  It is assigned an area and a certain heigh to patrol at, and with that it constructs waypoints to hit while patrolling it's path.
+*The drone is currentely being worked on.*  It is assigned an area and a certain height to patrol at, and with that it constructs waypoints to hit while patrolling it's path.
 
 The fear I have with developing the drones is keeping them at an appropriate height so the player doesn't have to keep stairing straight up at the sky, while still keeping the drones from being too low and hitting buildings. Done corretely it'll be fun having something chase the player, but it may take alot of raycasting to keep the drone stearing clear of obstacles.
 
@@ -59,7 +59,7 @@ The warp power is to aid the player in navigation around a scene. Pressing 'q' a
 The special effects need to be improved for this power as well as the execution of the power itself.
 
 #### Weapons
-In mech games, a players mech usually has two weapons ( a left and a right one ) armed and ready to go at all times.  The weapons in this game have no ammo limit, but they can overheat.  The [Weapon Configuration Struct](https://github.com/EliCDavis/DontStopRunning/blob/master/Assets/Scripts/PlayerInGameControl/WeaponConfiguration.cs) encompases the different parameters of a weapon the player will use such as damage, firerate, how fast they become heated, and how fast they cool off.  When a weapon becomes overheated then the player will not be able to use that weapon until it has completely cooled off.  
+In mech games, a players mech usually has two weapons ( a left and a right one ) armed and ready to go at all times.  The weapons in this game have no ammo limit, but they can overheat.  The [Weapon Configuration Struct](https://github.com/EliCDavis/DontStopRunning/blob/master/Assets/Scripts/Characters/PlayerInGameControl/Weaponry/WeaponConfiguration.cs) encompases the different parameters of a weapon the player will use such as damage, firerate, how fast they become heated, and how fast they cool off.  When a weapon becomes overheated then the player will not be able to use that weapon until it has completely cooled off.  
 
 All weapons have a bullet spawn child in them which contains the audiosource for the soundeffect that will play when their fired, as well as a particle emiter that will be played once when fired.
 
@@ -75,7 +75,7 @@ A raycast based weapon will not instantiate anything into the scene except for s
 This is simple and arguably the most understood form of weaponry in gaming, but lacks much creativity and theirfor I'd like to look into different solutions to making the method funner.
 
 ##### Projectile Based
-Another component of the Weapon Configuration Struct is the [Projectile Configuration Struct](https://github.com/EliCDavis/DontStopRunning/blob/master/Assets/Scripts/PlayerInGameControl/ProjectileConfiguration.cs) that you can create and edit if you want your weapon to shoot projectiles.  An example of this is a rocket launcher that does not immediately deal damage when they are spawned into the scene.  There are a few advantages for projectile based weapons that leaves room for interesting gameplay mechanics.
+Another component of the Weapon Configuration Struct is the [Projectile Configuration Struct](https://github.com/EliCDavis/DontStopRunning/blob/master/Assets/Scripts/Characters/PlayerInGameControl/Weaponry/ProjectileConfiguration.cs) that you can create and edit if you want your weapon to shoot projectiles.  An example of this is a rocket launcher that does not immediately deal damage when they are spawned into the scene.  There are a few advantages for projectile based weapons that leaves room for interesting gameplay mechanics.
 
 1. The behavior for each different projectile can be coded differentely and assigned to it's own projectile prefab without having to modify any weapon behavior code *(A missile will act differentely that a bouncy ball)*
 2. If the projectile has a rigid body then it can be enacted on by other forces that happen in the scene to change it's tragectory.
