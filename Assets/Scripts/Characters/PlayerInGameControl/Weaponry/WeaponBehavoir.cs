@@ -16,6 +16,25 @@ namespace EliDavis.Characters.PlayerInGameControl.Weaponry {
 
 		private Weapon rightArm;
 
+
+		/// <summary>
+		/// Sets the left arm that the player fires from
+		/// </summary>
+		/// <param name="arm">Arm.</param>
+		public void setLeftArm (Weapon arm) {
+			leftArm = arm;
+		}
+
+
+		/// <summary>
+		/// Sets the right arm that the player fires from
+		/// </summary>
+		/// <param name="arm">Arm.</param>
+		public void setRightArm(Weapon arm) {
+			rightArm = arm;
+		}
+
+
 		/// <summary>
 		/// Returns the current percentage of heat that the weapon has accumulated
 		/// </summary>
@@ -45,17 +64,6 @@ namespace EliDavis.Characters.PlayerInGameControl.Weaponry {
 
 		// Use this for initialization
 		void Start () {
-
-			// Create a basic machine gun configuration
-			WeaponConfiguration chaingun = new WeaponConfiguration (4f, .02f,  .15f, 0.05f, .8f);
-			chaingun.impactEffect = Resources.Load ("Particle/Bullet Impact") as GameObject;
-			leftArm = new Weapon (transform.FindChild ("MainCamera").FindChild ("Turret Cannons").FindChild ("Left Arm").gameObject, chaingun);
-
-
-			// Create a basic rocket Launcher configuration
-			WeaponConfiguration rocketLauncher = new WeaponConfiguration (50f, .2f, .05f, 1f, .95f, new ProjectileConfiguration(Resources.Load<GameObject>("Projectiles/Missile")));
-			rightArm = new Weapon (transform.FindChild ("MainCamera").FindChild ("Turret Cannons").FindChild ("Right Arm").gameObject, rocketLauncher);
-			
 
 			// Get reference to the UI
 			Transform playerUI = transform.FindChild ("PlayerUI");

@@ -8,7 +8,7 @@ namespace EliDavis.Characters.Enemy {
 	/// Artificial Behvaior given to a turret that seeks out a target and when found fires at it.
 	/// If it does not have a target it will just stay in idle state.
 	/// </summary>
-	public class TurretBehavoir : Character {
+	public class TurretBehavoir : Enemy {
 
 	    //Defining a list of states our Turret can be in
 	    enum TurretStates { Idle, AttackingTarget }
@@ -45,16 +45,9 @@ namespace EliDavis.Characters.Enemy {
 			currentHealth = MAX_HEALTH;
 
 	    }
-
 	    
 		// Update is called once per frame
 		void Update () {
-
-	        //If we don't have a target then let's not do anything!
-	        if(target == null)
-	        {
-	            return;
-	        }
 
 	        //Our state machine.  Only update whatever state we're in
 	        switch (currentState)
@@ -106,7 +99,7 @@ namespace EliDavis.Characters.Enemy {
 	    /// Behvaior the turret will execute when it is in its idle state.
 	    /// Will look for target
 	    /// </summary>
-	    void idleStateUpdate()
+	    private void idleStateUpdate()
 	    {
 	        //If we can now see our target
 	        if (canSeeTarget())
@@ -118,19 +111,14 @@ namespace EliDavis.Characters.Enemy {
 	        //Spin around in an attempt to find the target
 	        transform.Rotate(new Vector3(0, 45*Time.deltaTime*Time.timeScale,0));
 
-	        // Draw line to target for debugging purposes
-	        if(target != null)
-	        {
-	            //Vector3 toPlayer = target.transform.position - bulletSpawn.transform.position;
-	            //Debug.DrawLine(bulletSpawn.position, toPlayer * eyeSight);
-	        }
+	        
 
 	    }
 
 	    /// <summary>
 	    /// Behavior the turret will execute when it is attacking it's target
 	    /// </summary>
-	    void attackingPlayerUpdate()
+		private void attackingPlayerUpdate()
 	    {
 	        // If we can't see the target anymore then let's go back to searching for it in idle
 	        if (!canSeeTarget())
@@ -155,7 +143,7 @@ namespace EliDavis.Characters.Enemy {
 	    /// This is based on it's eye sight, fov, and things obstructing the player
 	    /// </summary>
 	    /// <returns>True if the turret can see the player, false if it can't</returns>
-	    bool canSeeTarget()
+		private bool canSeeTarget()
 	    {
 
 	        //We can't see a target if we don't have one!
@@ -193,6 +181,7 @@ namespace EliDavis.Characters.Enemy {
 
 	        //We were unable to see the player
 	        return false;
+
 	    }
 
 
@@ -206,7 +195,7 @@ namespace EliDavis.Characters.Enemy {
 	    /// Launches a bullet at rate defined by the fireSpeed
 	    /// If the fireSpeed is 3, then the turret will launch a bullet every 3 seconds
 	    /// </summary>
-	    void fireUpdate()
+		private void fireUpdate()
 	    {
 	        //Get the current time since the game has started in seconds
 	        int curTime = (int)Time.time;
@@ -234,7 +223,7 @@ namespace EliDavis.Characters.Enemy {
 	    /// <summary>
 	    /// Creates a bullet and gives it physics and direction to simulate it launching from the turret.
 	    /// </summary>
-	    void shootBullet()
+		private void shootBullet()
 	    {
 
 	        //Creating a basic bitch sphere to work with

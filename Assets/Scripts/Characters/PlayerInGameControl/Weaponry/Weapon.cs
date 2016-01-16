@@ -174,6 +174,17 @@ namespace EliDavis.Characters.PlayerInGameControl.Weaponry{
 
 
 		/// <summary>
+		/// Gets the weapon model the weapon uses for animation and such
+		/// </summary>
+		/// <returns>The weapon model.</returns>
+		public GameObject getWeaponModel(){
+
+			return this.weaponModel;
+
+		}
+
+
+		/// <summary>
 		/// Performs a ray cast and instantiates effects and deals damage appropriately
 		/// if a cast hits an enemy
 		/// </summary>

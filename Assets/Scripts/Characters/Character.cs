@@ -28,8 +28,8 @@ namespace EliDavis.Characters {
 		/// <param name="currenthealth">The current health of the character.</param>
 		public void setHealthParameters(float maxhealth, float currenthealth){
 
-			this.MAX_HEALTH = maxhealth;
-			this.currentHealth = currenthealth;
+			this.MAX_HEALTH = Mathf.Clamp(maxhealth,1,10000);
+			this.currentHealth = Mathf.Clamp(currenthealth, 1, this.MAX_HEALTH);
 
 		}
 

@@ -20,10 +20,16 @@ namespace EliDavis.GameManagement {
 		private GameManager(){
 
 			enemyList = new List<Character>();
+			friendlyList = new List<Character> ();
 
 		}
 
+
+		/// <summary>
+		/// The only instance that should every exhist of the GameManager.
+		/// </summary>
 		static GameManager instance = null;
+
 
 		/// <summary>
 		/// Singleton method for ensuring theres only one game manager instance.
@@ -40,10 +46,16 @@ namespace EliDavis.GameManagement {
 		}
 
 
-		List<Character> enemyList;
+		private List<Character> enemyList;
+
+
+		private List<Character> friendlyList;
 
 
 		private int enemiesDestroyed = 0;
+
+
+		private int friendlysDestroyed = 0;
 
 
 		private LevelSetting currentLoadedLevelSettings = null;
@@ -65,6 +77,23 @@ namespace EliDavis.GameManagement {
 
 
 		/// <summary>
+		/// Returns every instance of a character currentely loaded
+		/// in the scene, friendly or enemy to the player.
+		/// This also includes the player if their not dead
+		/// </summary>
+		/// <returns>The all characters in scene.</returns>
+		public Character[] getAllCharactersInScene ()
+		{
+			List<Character> allCharacters = new List<Character> ();
+
+			allCharacters.AddRange (enemyList);
+			allCharacters.AddRange (friendlyList);
+
+			return allCharacters.ToArray ();
+		}
+
+
+		/// <summary>
 		/// Updates the gamemanger that the character is now dead
 		/// </summary>
 		/// <param name="character">Character.</param>
@@ -75,9 +104,20 @@ namespace EliDavis.GameManagement {
 				enemiesDestroyed ++;
 			}
 
+			if (friendlyList.Contains (character)) {
+				friendlyList.Remove(character);
+				friendlysDestroyed ++;
+			}
+
 		}
 
 
+		/// <summary>
+		/// Returns the count of the number of reported killed 
+		/// characters that turned out to be enemies since the level 
+		/// was loaded (or last cleared)
+		/// </summary>
+		/// <returns>The enemies killed since level start.</returns>
 		public int getEnemiesKilledSinceLevelStart(){
 
 			return enemiesDestroyed;
@@ -91,6 +131,10 @@ namespace EliDavis.GameManagement {
 		/// <param name="enemy">Enemy.</param>
 		public void addEnemy(Character enemy){
 		
+			if (enemy == null) {
+				return;
+			}
+
 			enemyList.Add (enemy);
 		
 		}
@@ -105,6 +149,7 @@ namespace EliDavis.GameManagement {
 			return enemyList.ToArray ();
 
 		}
+
 
 		/// <summary>
 		/// Destroys all enemies from the scene
@@ -131,6 +176,28 @@ namespace EliDavis.GameManagement {
 			enemyList.Clear ();
 			enemiesDestroyed = 0;
 			
+		}
+
+
+		/// <summary>
+		/// Adds a friendly character that will fight with the player
+		/// </summary>
+		/// <param name="friendly">Friendly.</param>
+		public void addFriendly(Character friendly){
+
+			if (friendly == null) {
+				return;
+			}
+
+			friendlyList.Add (friendly);
+
+		}
+
+
+		public Character[] getFriendlyCharacters(){
+
+			return friendlyList.ToArray ();
+
 		}
 
 

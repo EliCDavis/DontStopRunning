@@ -39,18 +39,14 @@ namespace EliDavis.Characters.PlayerInGameControl {
 
 
 		/// <summary>
-		/// When the player dies we should disable their controls and show the death screen
+		/// Sets the booster variables the player will operate with
 		/// </summary>
-		protected override void OnDie(){
+		/// <param name="max">The max boost a player could have</param>
+		/// <param name="cur">The current boost the player can have</param>
+		public void setBoosterSettings(float max, float cur){
 
-			// Disable the UI that shows things such as health
-			playerUI.GetComponent<Canvas>().enabled = false;
-			
-			// Display the on death UI
-			transform.FindChild("OnDeathScreen").GetComponent<Canvas>().enabled = true;
-			
-			// Disable the player from moving around
-			setPlayerControl(false);
+			this.MAX_BOOST = Mathf.Clamp(max, 0, 10000);
+			this.currentBoost = Mathf.Clamp(cur, 0, this.MAX_BOOST);
 
 		}
 
@@ -64,9 +60,11 @@ namespace EliDavis.Characters.PlayerInGameControl {
 		/// <param name="amount">Amount of boost power you'd like to utilize</param>
 		public bool requestBoostPower(float amount){
 
-			if(currentBoost - amount > 0){
+			float sanitizedAmount = Mathf.Abs (amount);
 
-				currentBoost -= amount;
+			if(currentBoost - sanitizedAmount > 0){
+
+				currentBoost -= sanitizedAmount;
 				lastTimeUsingBoost = Time.time;
 
 				return true;
@@ -75,6 +73,23 @@ namespace EliDavis.Characters.PlayerInGameControl {
 
 			return false;
 
+		}
+
+
+		/// <summary>
+		/// When the player dies we should disable their controls and show the death screen
+		/// </summary>
+		protected override void OnDie(){
+			
+			// Disable the UI that shows things such as health
+			playerUI.GetComponent<Canvas>().enabled = false;
+			
+			// Display the on death UI
+			transform.FindChild("OnDeathScreen").GetComponent<Canvas>().enabled = true;
+			
+			// Disable the player from moving around
+			setPlayerControl(false);
+			
 		}
 
 

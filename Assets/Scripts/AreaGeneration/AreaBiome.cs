@@ -1,10 +1,14 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public enum AreaBiome{
-	Test,
-	Woods,
-	Forest,
-	Desert,
-	Mountains
+namespace EliDavis.AreaGeneration {
+
+	public enum AreaBiome{
+		Test,
+		Woods,
+		Forest,
+		Desert,
+		Mountains
+	}
+
 }
