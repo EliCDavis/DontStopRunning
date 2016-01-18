@@ -11,7 +11,26 @@ namespace EliDavis.Characters.Enemy {
 	public class TurretBehavoir : Enemy {
 
 	    //Defining a list of states our Turret can be in
-	    enum TurretStates { Idle, AttackingTarget }
+	    enum TurretStates { 
+
+			/// <summary>
+			/// The idle state of the turret where it is looking for a target to fire at
+			/// </summary>
+			Idle, 
+
+			/// <summary>
+			/// The attacking state of the turret where the turret will continually fire
+			/// at a target as long as it's visible.
+			/// </summary>
+			AttackingTarget, 
+
+			/// <summary>
+			/// The overriden state of the turret where it await commands externally to 
+			/// perform.
+			/// </summary>
+			Overriden 
+		
+		}
 
 	    //The current state our turret is in, default to Idle where it's looking for the target
 	    private TurretStates currentState = TurretStates.Idle;
@@ -25,8 +44,11 @@ namespace EliDavis.Characters.Enemy {
 	    //Where we ant to fire bullets from
 		private Transform bulletSpawn;
 
-	    //Target of the turret
-		private  GameObject target;
+
+		/// <summary>
+		/// When the turret is overridden, this is the position that the turret will continually fire at
+		/// </summary>
+		private Vector3 overridenPositionToFireAt = Vector3.zero;
 
 
 		[SerializeField]
@@ -37,9 +59,6 @@ namespace EliDavis.Characters.Enemy {
 
 	        //Get a reference to our bullet spawn location so we can shoot from that location
 	        bulletSpawn = transform.FindChild("bulletspawn");
-
-	        //Define a target for the turret to look for and attack
-	        target = GameObject.Find("Player");
 
 			// Let the turret start out with max health.
 			currentHealth = MAX_HEALTH;
@@ -52,13 +71,18 @@ namespace EliDavis.Characters.Enemy {
 	        //Our state machine.  Only update whatever state we're in
 	        switch (currentState)
 	        {
-	            case TurretStates.Idle:
-	                idleStateUpdate();
-	                break;
+            case TurretStates.Idle:
+                idleStateUpdate();
+                break;
 
-	            case TurretStates.AttackingTarget:
-	                attackingPlayerUpdate();
-	                break;
+            case TurretStates.AttackingTarget:
+                attackingTargetUpdate();
+                break;
+
+			case TurretStates.Overriden:
+				turretOverrideUpdate();
+				break;
+
 	        }
 
 	        
@@ -75,6 +99,29 @@ namespace EliDavis.Characters.Enemy {
 
 
 		/// <summary>
+		/// Overrides the turret to continually fire at a certain position until
+		/// the turret is no longer overriden 
+		/// </summary>
+		/// <param name="positionToFireAt">Position to fire at.</param>
+		public void enterOverride(Vector3 positionToFireAt){
+			currentState = TurretStates.Overriden;
+			overridenPositionToFireAt = positionToFireAt;
+		}
+
+
+		/// <summary>
+		/// Exits the overriden state of the turret and gives back control to the turret's AI
+		/// </summary>
+		public void exitOverride(){
+
+			if (currentState == TurretStates.Overriden) {
+				currentState = TurretStates.Idle;
+			}
+
+		}
+
+
+		/// <summary>
 		/// Whenever we take damage update the health bar above our head
 		/// </summary>
 		protected override void OnDamage ()
@@ -86,6 +133,10 @@ namespace EliDavis.Characters.Enemy {
 
 		}
 
+
+		/// <summary>
+		/// Create an explosion when we die
+		/// </summary>
 		protected override void OnDie ()
 		{
 			// Create a pretty little effect
@@ -95,6 +146,7 @@ namespace EliDavis.Characters.Enemy {
 			Destroy(transform.parent.gameObject);
 		}
 
+
 	    /// <summary>
 	    /// Behvaior the turret will execute when it is in its idle state.
 	    /// Will look for target
@@ -102,7 +154,7 @@ namespace EliDavis.Characters.Enemy {
 	    private void idleStateUpdate()
 	    {
 	        //If we can now see our target
-	        if (canSeeTarget())
+			if (getClosestVisibleTarget() != null)
 	        {
 	            currentState = TurretStates.AttackingTarget;
 	            return;
@@ -111,19 +163,21 @@ namespace EliDavis.Characters.Enemy {
 	        //Spin around in an attempt to find the target
 	        transform.Rotate(new Vector3(0, 45*Time.deltaTime*Time.timeScale,0));
 
-	        
-
 	    }
+
 
 	    /// <summary>
 	    /// Behavior the turret will execute when it is attacking it's target
 	    /// </summary>
-		private void attackingPlayerUpdate()
+		private void attackingTargetUpdate()
 	    {
+
+			GameObject closestVisibleTarget = getClosestVisibleTarget ();
+
 	        // If we can't see the target anymore then let's go back to searching for it in idle
-	        if (!canSeeTarget())
+			if (closestVisibleTarget == null)
 	        {
-	            currentState = TurretStates.Idle;
+				transitionIntoIdle();
 	            return;
 	        }
 
@@ -131,19 +185,98 @@ namespace EliDavis.Characters.Enemy {
 	        //Vector3 toPlayer = target.transform.position - bulletSpawn.transform.position;
 	        //Debug.DrawLine(bulletSpawn.position, toPlayer * eyeSight, Color.red);
 
-	        // Look at the target and fire bullets at it
-	        transform.LookAt(target.transform.position);
+			Vector3 directionTargetsMovingIn = Vector3.zero;
+
+			// TODO Improve accuracy and target tracking to better hit the target
+
+			// Try grabbing an instance of a rigid body
+			Rigidbody targetsBody = closestVisibleTarget.GetComponent<Rigidbody> ();
+
+			// If the object has a rigid body
+			if(targetsBody != null){
+
+				// Get the velocity the target is moving
+				directionTargetsMovingIn = targetsBody.velocity;
+
+			}
+
+	        // Look at the target's expected position and fire bullets at it
+			transform.LookAt(closestVisibleTarget.transform.position + 
+			                 (directionTargetsMovingIn*Time.deltaTime*Vector3.Distance(closestVisibleTarget.transform.position,this.transform.position)));
+
 	        fireUpdate();
 
 	    }
 
 
+		/// <summary>
+		/// When the turret is overriden we contually fire at the position given
+		/// </summary>
+		private void turretOverrideUpdate(){
+			transform.LookAt (overridenPositionToFireAt);
+			fireUpdate ();
+		}
+
+
+		/// <summary>
+		/// Transitions the turret into idle state and resets it's roation
+		/// </summary>
+		private void transitionIntoIdle(){
+
+			currentState = TurretStates.Idle;
+
+			// Reset rotation of the head of the turret
+			Vector3 currentRotation = transform.rotation.eulerAngles;
+
+			currentRotation.x = 0;
+			currentRotation.z = 0;
+
+			transform.rotation = Quaternion.Euler(currentRotation);
+
+		}
+
+
+		/// <summary>
+		/// Gets the closest visible target to the turret.
+		/// Will return null if no targets exist that fit the criteria
+		/// </summary>
+		/// <returns>The closest visible target.</returns>
+		private GameObject getClosestVisibleTarget(){
+
+			Character[] potentialTargets = GameManagement.GameManager.getInstance ().getFriendlyCharacters ();
+
+			GameObject closestTarget = null;
+			float closestDistance = 10000000;
+
+			for (int i = 0; i < potentialTargets.Length; i ++) {
+
+				if(potentialTargets[i] == null){
+					continue;
+				}
+
+				float ourDistanceFromPotentialTarget = Vector3.Distance(this.transform.position, potentialTargets[i].transform.position);
+
+				// If this object is the closest one we've seen and it is visible by the turret
+				if(ourDistanceFromPotentialTarget < closestDistance && canSeeObject(potentialTargets[i].gameObject)) {
+
+					closestTarget = potentialTargets[i].gameObject;
+					closestDistance = ourDistanceFromPotentialTarget;
+
+				}
+
+			}
+
+			return closestTarget;
+
+		}
+
+
 	    /// <summary>
 	    /// Determines whether or not the turret can see it's target.
-	    /// This is based on it's eye sight, fov, and things obstructing the player
+	    /// This is based on it's eye sight, fov, and things obstructing the target
 	    /// </summary>
-	    /// <returns>True if the turret can see the player, false if it can't</returns>
-		private bool canSeeTarget()
+	    /// <returns>True if the turret can see the target, false if it can't</returns>
+		private bool canSeeObject(GameObject target)
 	    {
 
 	        //We can't see a target if we don't have one!
@@ -161,23 +294,7 @@ namespace EliDavis.Characters.Enemy {
 	            return false;
 	        }
 
-	        //Variable for storing hit results of our raycast
-	        RaycastHit hit;
-
-	        //Direction we want the raycast to go in.
-	        Vector3 toPlayer = target.transform.position - bulletSpawn.transform.position;
-
-	        //Shoot a ray cast aimed at the player to see if it hits.
-	        //NOTE: A smarter Turret would shoot multiple raycasts at multiple points at the player incase 
-	        //only part of the player is covered up
-	        if (Physics.Raycast(bulletSpawn.position, toPlayer, out hit, eyeSight))
-	        {
-	            //If what we hit is our target
-	            if (hit.transform.name == target.name)
-	            {
-	                return true;
-	            }
-	        }
+	        
 
 	        //We were unable to see the player
 	        return false;
@@ -186,7 +303,7 @@ namespace EliDavis.Characters.Enemy {
 
 
 	    //How many seconds do we want to wait before we launch the next bullet
-	    int fireSpeed = 3;
+	    int fireSpeed = 2;
 
 	    //Have we fired this second?
 	    bool hasFired = false;

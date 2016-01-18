@@ -46,7 +46,7 @@ namespace UnityStandardAssets.Characters.FirstPerson
 					CurrentTargetSpeed = ForwardSpeed;
 				}
 #if !MOBILE_INPUT
-				if (Input.GetKey(RunKey) && playerBehavoir.requestBoostPower(1f))
+				if (Input.GetKey(RunKey) && playerBehavoir.requestBoostPower(.5f))
 	            {
 		            CurrentTargetSpeed *= RunMultiplier;
 		            m_Running = true;
@@ -216,6 +216,47 @@ namespace UnityStandardAssets.Characters.FirstPerson
 							gameObject.GetComponent<AudioSource>().PlayOneShot(footstepSound);
 						}
 
+
+						// This is supposed to be a dashing power that is only activated to move
+						// side to side.  Only can be activated with shift when only moving along the 
+						// horitontal direction
+						if(Time.time - timeOfLastSideDash > .2f &&
+						   CrossPlatformInputManager.GetAxisRaw("Vertical") == 0 && 
+						   CrossPlatformInputManager.GetAxisRaw("Horizontal") != 0 &&
+						   Input.GetKeyDown(movementSettings.RunKey) && 
+						   playerBehavoir.requestBoostPower(10) )
+						{
+
+							m_RigidBody.velocity = new Vector3(m_RigidBody.velocity.x, 0f, m_RigidBody.velocity.z);
+
+							m_RigidBody.AddForce(transform.TransformVector(
+								new Vector3((movementSettings.JumpForce/5) * CrossPlatformInputManager.GetAxisRaw("Horizontal"), 33, 0f)
+								),
+			                     ForceMode.VelocityChange);
+
+							timeOfLastSideDash = Time.time;
+
+						}
+
+						// This is a dash power to back up very quickly if the shift key is hit while the player is only moving backwards
+						if(Time.time - timeOfLastSideDash > .2f &&
+						   CrossPlatformInputManager.GetAxisRaw("Vertical") == -1 && 
+						   CrossPlatformInputManager.GetAxisRaw("Horizontal") == 0 &&
+						   Input.GetKeyDown(movementSettings.RunKey) && 
+						   playerBehavoir.requestBoostPower(10) )
+						{
+							
+							m_RigidBody.velocity = new Vector3(m_RigidBody.velocity.x, 0f, m_RigidBody.velocity.z);
+							
+							m_RigidBody.AddForce(transform.TransformVector(
+								new Vector3(0, 33, (movementSettings.JumpForce/5) * -1)
+								),
+							                     ForceMode.VelocityChange);
+							
+							timeOfLastSideDash = Time.time;
+							
+						}
+
 					} 
 
 				}
@@ -231,6 +272,7 @@ namespace UnityStandardAssets.Characters.FirstPerson
             m_Jump = false;
         }
 
+		float timeOfLastSideDash = 0;
 
         private float SlopeMultiplier()
         {

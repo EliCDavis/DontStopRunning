@@ -89,7 +89,10 @@ namespace EliDavis.Characters.PlayerInGameControl {
 			
 			// Disable the player from moving around
 			setPlayerControl(false);
-			
+
+			// Keeps players from flying around the map if they died while moving
+			gameObject.GetComponent<Rigidbody> ().velocity = Vector3.zero;
+
 		}
 
 

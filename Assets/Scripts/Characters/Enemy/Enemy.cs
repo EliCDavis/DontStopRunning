@@ -36,6 +36,36 @@ namespace EliDavis.Characters.Enemy {
 		}
 
 
+		/// <summary>
+		/// Given a target a raycast is performed to see if we can hit the target, 
+		/// if not that means it hit another object in the way to the target and there
+		/// for the target is obscured by something
+		/// </summary>
+		/// <returns><c>true</c>, if is obscured, <c>false</c> otherwise.</returns>
+		/// <param name="target">Target.</param>
+		protected bool objectIsObscured(GameObject target){
+
+			// Variable for storing hit results of our raycast
+			RaycastHit hit;
+			
+			// Direction we want the raycast to go in.
+			Vector3 toTarget = target.transform.position - transform.position;
+			
+			// Shoot a ray cast aimed at the player to see if it hits.
+			if (Physics.Raycast(transform.position, toTarget, out hit, 10000))
+			{
+				// If what we hit is our target
+				if (hit.transform.gameObject == target)
+				{
+					return false;
+				}
+			}
+
+			return true;
+
+		}
+
+
 	}
 
 }

@@ -38,54 +38,6 @@ namespace EliDavis.AreaGeneration {
 
 			return new Structure(structure, obj, area);
 
-			GameObject sturctReference;
-
-			string themeFolderDirectoryName;
-			switch (area.getBiome()) {
-				
-			case AreaBiome.Test:
-				themeFolderDirectoryName = "Test";
-				break;
-				
-			case AreaBiome.Forest:
-				themeFolderDirectoryName = "Forest";
-				break;
-				
-				
-			case AreaBiome.Desert:
-				themeFolderDirectoryName = " Desert";
-				break;
-				
-			default:
-				Debug.LogError("Area biome not defined!");
-				return null;
-			}
-
-
-			switch (structure) {
-				
-				case StructureType.Fort:
-				sturctReference = Resources.Load("Structures/Civilization/"+themeFolderDirectoryName+"/Fort")as GameObject;
-					break;
-					
-				case StructureType.Building:
-				sturctReference = Resources.Load("Structures/Civilization/"+themeFolderDirectoryName+"/Building")as GameObject;
-					break;
-					
-					
-				case StructureType.Hut:
-				sturctReference = Resources.Load("Structures/Civilization/"+themeFolderDirectoryName+"/Hut")as GameObject;
-					break;
-					
-				default:
-					Debug.LogError("Structure Model Has Not Been Defined!");
-					return null;
-			}
-
-			GameObject structureObject = Object.Instantiate (sturctReference, position, Quaternion.identity)as GameObject;
-
-			return new Structure(structure,structureObject,area);
-
 		}
 
 		/// <summary>

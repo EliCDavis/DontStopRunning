@@ -7,7 +7,7 @@ namespace EliDavis.Characters.Enemy {
 	/// <summary>
 	/// This is the AI for a classic drone that can patrol areas and attack it's target from the sky.
 	/// </summary>
-	public class DroneBehavior : Character {
+	public class DroneBehavior : Enemy {
 
 		enum DroneState {
 
@@ -60,7 +60,7 @@ namespace EliDavis.Characters.Enemy {
 		/// <summary>
 		/// The field of view that the drone has when looking for it's target.
 		/// </summary>
-		private float fov = 40;
+		private float fov = 60;
 
 
 		/// <summary>
@@ -85,6 +85,12 @@ namespace EliDavis.Characters.Enemy {
 		/// The waypoint's position the drone is currentely persuing
 		/// </summary>
 		private Vector2 currentWayPointMovingTo;
+
+
+		/// <summary>
+		/// The turret the drone has control of
+		/// </summary>
+		private TurretBehavoir turret;
 
 
 		/// <summary>
@@ -141,6 +147,7 @@ namespace EliDavis.Characters.Enemy {
 		void Start () {
 		
 			body = transform.GetComponent<Rigidbody> ();
+			turret = transform.GetComponentInChildren<TurretBehavoir> ();
 
 		}
 
@@ -172,11 +179,35 @@ namespace EliDavis.Characters.Enemy {
 		}
 
 
+		/// <summary>
+		/// The drone attempts to attack a target until it's destroyed
+		/// </summary>
 		private void persuingUpdate (){
-			throw new System.NotImplementedException ();
+
+			GameObject targetToPersue = getClosestVisibleTarget();
+
+			if (targetToPersue == null) {
+				currentState = DroneState.Patrol;
+				turret.exitOverride();
+				return;
+			}
+
+			// Move towards the player while maintaining our current altitude
+			Vector3 desiredPosition = targetToPersue.transform.position;
+			desiredPosition.y = this.transform.position.y;
+			moveTowardsPositon (desiredPosition);
+
+			// Keep a certain height above the player
+			float desiredHeightAbovePlayer = 15f;
+			gyroscopicAutopilotUpdate (targetToPersue.transform.position.y + desiredHeightAbovePlayer);
+
+			// Overide the turret to fire at the player
+			turret.enterOverride (targetToPersue.transform.position);
+
 		}
 
 
+		//TODO Implement a search method
 		private void searchingUpdate (){
 			throw new System.NotImplementedException ();
 		}
@@ -227,7 +258,48 @@ namespace EliDavis.Characters.Enemy {
 
 			}
 
-			// TODO: Look for potential targets
+			// Look for potential targets
+			if(getClosestVisibleTarget() != null){
+				currentState = DroneState.Persuing;
+				return;
+			}
+
+
+		}
+
+
+		/// <summary>
+		/// Gets the closest visible target.
+		/// </summary>
+		/// <returns>The closest visible target.</returns>
+		private GameObject getClosestVisibleTarget(){
+
+			Character[] potentialTargets = GameManagement.GameManager.getInstance ().getFriendlyCharacters ();
+
+			GameObject closestTarget = null;
+			float closestDistance = 10000000;
+
+			for (int i = 0; i < potentialTargets.Length; i ++) {
+
+				// The angle between us and the target when looking down
+				float angle = Vector3.Angle(potentialTargets[i].transform.position - transform.position, transform.up*-1);
+				
+				if(angle > fov){
+					continue;
+				}
+
+
+				float distance = Vector3.Distance(potentialTargets[i].transform.position, this.transform.position);
+
+				// If this is a closer distance from a previous target and it's not obscured
+				if(distance < closestDistance && !objectIsObscured(potentialTargets[i].transform.gameObject)){
+					closestTarget = potentialTargets[i].transform.gameObject;
+					closestDistance = distance;
+				}
+				
+			}
+
+			return closestTarget;
 
 		}
 
@@ -295,18 +367,27 @@ namespace EliDavis.Characters.Enemy {
 
 			Vector2 wayPoint = getPositionOfWaypoint(currentWayPointMovingTo);
 
-			// Get the direction the turret needs to move in to get to the waypoint
-			Vector3 directionOfWaypoint = new Vector3(wayPoint.x, transform.position.y, wayPoint.y) - transform.position;
+			moveTowardsPositon (new Vector3(wayPoint.x, transform.position.y, wayPoint.y));
+				
+		}
+
+
+		/// <summary>
+		/// Moves the drone towards a certain position positon.
+		/// </summary>
+		/// <param name="positionToMoveTo">Position to move to.</param>
+		private void moveTowardsPositon(Vector3 positionToMoveTo){
+
+			// Get the direction the turret needs to move in to get to the desiredPosition
+			Vector3 directionOfWaypoint = new Vector3(positionToMoveTo.x, transform.position.y, positionToMoveTo.y) - transform.position;
 
 			//TODO Implement this functionality using rigidbody forces!
-
+			
 			// If our velocity is not in the same direction
-				// add force to cancel out the velocity
-				// add force to start heading in the right direction
-
-			transform.position = Vector3.MoveTowards (transform.position, new Vector3(wayPoint.x, transform.position.y, wayPoint.y), 10*Time.deltaTime);
-
-				
+			// add force to cancel out the velocity
+			// add force to start heading in the right direction
+			
+			transform.position = Vector3.MoveTowards (transform.position, positionToMoveTo, 10*Time.deltaTime);
 		}
 
 

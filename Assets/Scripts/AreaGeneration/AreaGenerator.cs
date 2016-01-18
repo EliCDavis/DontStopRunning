@@ -467,15 +467,14 @@ namespace EliDavis.AreaGeneration {
 
 			if (createAreaOnStart) {
 
-				// Spawn the player because we can
-				GameObject player = Resources.Load("Player") as GameObject;
-				player = GameObject.Instantiate(player, 
-				                                new Vector3(
+			
+
+				GameObject player = EliDavis.Characters.PlayerInGameControl.PlayerFactory.CreatePlayer( new Vector3(
 													((float)areaWidthInSections/2.0f)*dimensionOfSection,
 													20f,
 													((float)areaHeightInSections/2.0f)*dimensionOfSection
-												), 
-				                                Quaternion.identity) as GameObject;
+												), EliDavis.Characters.PlayerInGameControl.Weaponry.PrebuiltWeaponType.Chaingun,
+				                                                                            EliDavis.Characters.PlayerInGameControl.Weaponry.PrebuiltWeaponType.MissileLauncher);
 
 				player.transform.name = "Player";
 

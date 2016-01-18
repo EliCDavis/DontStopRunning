@@ -89,6 +89,7 @@ namespace EliDavis.Characters.PlayerInGameControl.Weaponry {
 			leftHeat.value = getLeftArmHeat ();
 			rightHeat.value = getRightArmHeat ();
 
+
 			// Display whether or not the gun is overheated
 			if (leftArm.isOverheated ()) {
 				leftHeat.transform.GetComponentInChildren<Text> ().text = "OVERHEATED";
@@ -101,6 +102,12 @@ namespace EliDavis.Characters.PlayerInGameControl.Weaponry {
 			} else {
 				rightHeat.transform.GetComponentInChildren<Text> ().text = "";
 			}
+
+
+			leftHeat.transform.FindChild ("Fill Area").FindChild("Fill").GetComponent<Image>().color = new Color(1f,1f-getLeftArmHeat (),1f-getLeftArmHeat ());
+			
+			rightHeat.transform.FindChild ("Fill Area").FindChild("Fill").GetComponent<Image>().color = new Color(1f,1f-getRightArmHeat (),1f-getRightArmHeat ());
+
 
 		}
 
