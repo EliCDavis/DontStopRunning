@@ -5,6 +5,8 @@ namespace EliDavis.Characters.PlayerInGameControl.Weaponry {
 
 	public struct ProjectileConfiguration {
 
+		//TODO Add knockback force
+
 		public GameObject projectileModel;
 
 		private Vector3 launchForce;

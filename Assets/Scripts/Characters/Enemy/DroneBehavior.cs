@@ -60,7 +60,7 @@ namespace EliDavis.Characters.Enemy {
 		/// <summary>
 		/// The field of view that the drone has when looking for it's target.
 		/// </summary>
-		private float fov = 60;
+		private float fov = 70;
 
 
 		/// <summary>
@@ -148,6 +148,7 @@ namespace EliDavis.Characters.Enemy {
 		
 			body = transform.GetComponent<Rigidbody> ();
 			turret = transform.GetComponentInChildren<TurretBehavoir> ();
+			transform.GetComponentInChildren<Light> ().spotAngle = fov;
 
 		}
 
@@ -435,7 +436,8 @@ namespace EliDavis.Characters.Enemy {
 			// Add enough force to keep up at the current height we're at
 			body.AddForce ( ( Vector3.up * forceNeededToStayAfloat() ) , ForceMode.Force);
 
-			//TODO: Add force to fix rotation
+			//TODO: Add force to fix rotation instead of manually lerping it
+			transform.rotation = Quaternion.Lerp (transform.rotation, Quaternion.identity, 1f);
 
 		}
 

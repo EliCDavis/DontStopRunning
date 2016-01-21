@@ -146,6 +146,14 @@ namespace EliDavis.AreaGeneration {
 		void createSection (int xPlot, int yPlot, Texture2D mapOfSection)
 		{
 
+			if (Random.Range (0, 100) > 90) {
+			
+				EliDavis.Characters.Enemy.EnemyFactory.CreateDrone (new Vector3 (xPlot * dimensionOfSection, 30, yPlot * dimensionOfSection), 
+			                                                   new Rect (xPlot * dimensionOfSection, yPlot * dimensionOfSection, dimensionOfSection, dimensionOfSection),
+			                                                   20);
+
+			}
+
 			// Populate the free area with all the new land we're going to try building on.
 			for (int curXSec = 0; curXSec < dimensionOfSection; curXSec++) {
 				for (int curYSec = 0; curYSec < dimensionOfSection; curYSec++) {

@@ -9,6 +9,7 @@ namespace EliDavis.Characters.PlayerInGameControl.Weaponry{
 	/// </summary>
 	public struct WeaponConfiguration {
 
+		//TODO add recoil force
 
 		/// <summary>
 		/// If there is a projectile to launch, then raycasting will be ignored, and 

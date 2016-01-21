@@ -295,8 +295,23 @@ namespace EliDavis.Characters.Enemy {
 	        }
 
 	        
-
-	        //We were unable to see the player
+			// Variable for storing hit results of our raycast
+			RaycastHit hit;
+			
+			// Direction we want the raycast to go in.
+			Vector3 toTarget = target.transform.position - transform.position;
+			
+			// Shoot a ray cast aimed at the target to see if it hits.
+			if (Physics.Raycast(transform.position, toTarget, out hit, eyeSight))
+			{
+				// If what we hit is our target
+				if (hit.transform.gameObject == target)
+				{
+					return true;
+				}
+			}
+			
+	        //We were unable to see the target
 	        return false;
 
 	    }
