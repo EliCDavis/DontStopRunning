@@ -6,6 +6,7 @@ namespace EliDavis.Characters.PlayerInGameControl {
 
 	public static class PlayerFactory {
 
+		// TODO create override that takes WeaponConfigurations instead of PrebuiltWeaponType
 
 		public static GameObject CreatePlayer(Vector3 position, PrebuiltWeaponType leftWeapon, PrebuiltWeaponType rightWeapon){
 

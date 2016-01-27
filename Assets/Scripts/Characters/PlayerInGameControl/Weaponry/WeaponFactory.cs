@@ -70,14 +70,23 @@ namespace EliDavis.Characters.PlayerInGameControl.Weaponry {
 		/// <param name="weapon">Weapon.</param>
 		public static WeaponConfiguration getWeaponConfiguration(PrebuiltWeaponType weapon){
 
+			WeaponConfiguration config;
+
 			switch (weapon){
 
 			case PrebuiltWeaponType.Chaingun:
-				return new WeaponConfiguration(4f, .02f,  .15f, 0.05f, .8f, Resources.Load<GameObject> ("Particle/Bullet Impact"));
+
+				config = new WeaponConfiguration(4f, .02f,  .15f, 0.05f, .8f, Resources.Load<GameObject> ("Particle/Bullet Impact"));
+				config.Name = "SKULL FUCKER";
+
+				return config;
 
 			case PrebuiltWeaponType.MissileLauncher:
-				return new WeaponConfiguration(50f, .2f, .05f, 1f, .95f, new ProjectileConfiguration(Resources.Load<GameObject>("Projectiles/Missile")));
 
+				config = new WeaponConfiguration(50f, .2f, .05f, 1f, .95f, new ProjectileConfiguration(Resources.Load<GameObject>("Projectiles/Missile")));
+				config.Name = "ROCKET LAWNCHER";
+
+				return config;
 
 			}
 

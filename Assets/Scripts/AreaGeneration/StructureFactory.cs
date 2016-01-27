@@ -96,7 +96,7 @@ namespace EliDavis.AreaGeneration {
 
 
 			// Create random blueprints
-			int[][] blueprints = generateStructureBlueprints (plotDimensions, seed, civValue);
+			int[][] blueprints = generateBoringBlueprints (plotDimensions, seed, civValue);
 
 			// If there are no blue prints don't go any further
 			if(blueprints == null){
@@ -493,6 +493,75 @@ namespace EliDavis.AreaGeneration {
 			return blueprints;
 
 		}
+
+
+		/// <summary>
+		/// Generates the boring blueprints.
+		/// </summary>
+		/// <returns>The boring blueprints.</returns>
+		/// <param name="plotDimensions">Plot dimensions.</param>
+		/// <param name="seed">Seed.</param>
+		/// <param name="civValue">Civ value.</param>
+		static int[][] generateBoringBlueprints(Vector2 plotDimensions, int seed, float civValue){
+
+			if( civValue > 1f || civValue < 0f){
+				Debug.LogError("The civ value you passed in was rediculous, val: "+civValue);
+				return null;
+			}
+			
+			// Set up our seed so we get same results with same seed every time
+			Random.seed = seed;
+			
+			// Create blueprints which represent how many floors high the module will be.
+			int[][] blueprints = new int[(int)plotDimensions.x][];
+			
+			for (int x = 0; x < blueprints.Length; x ++) {
+
+				blueprints[x] = new int[(int)plotDimensions.y];
+
+			}
+
+
+			// Base building dimensions will always be rectangular
+			Vector2 baseBuildingDimensions = new Vector2 ( plotDimensions.x * Mathf.Clamp01(Random.Range(civValue,Mathf.Sqrt(civValue))), 
+			                                              plotDimensions.y * Mathf.Clamp01(Random.Range(civValue,Mathf.Sqrt(civValue))) );
+
+			// Centers the building in the middle of the plot
+			Vector2 buildingOffset = new Vector2 ((plotDimensions.x/2f) - (baseBuildingDimensions.x/2f), 
+			                                      (plotDimensions.y/2f) - (baseBuildingDimensions.y/2f));
+
+			// How tall the building will be
+			int maxHeight = 8;
+			int baseBuildingHeight = Mathf.Clamp(Mathf.FloorToInt(Random.Range ((maxHeight/2f) * civValue, maxHeight * Mathf.Sqrt(Mathf.Sqrt(civValue)))), 1, maxHeight);
+
+			// Create base blueprints
+			for(int x = 0; x < blueprints.Length; x ++){
+				
+				for(int y = 0; y < blueprints[x].Length; y ++){
+
+					int maxX = (int)(baseBuildingDimensions.x + buildingOffset.x);
+					int maxY = (int)(baseBuildingDimensions.y + buildingOffset.y);
+
+					if( maxX > x && x >= buildingOffset.x &&  maxY > y && y >= buildingOffset.y){
+
+						// If this is a base square
+						blueprints[x][y] = baseBuildingHeight;
+
+					} else {
+
+						// no square
+						blueprints[x][y] = 0;
+
+					}
+
+				}
+				
+			}
+
+			return blueprints;
+
+		}
+
 
 		/// <summary>
 		/// The number of modules that the current module is neighbor to

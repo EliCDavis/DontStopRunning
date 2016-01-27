@@ -19,6 +19,12 @@ namespace EliDavis.Characters.PlayerInGameControl.Weaponry{
 
 
 		/// <summary>
+		/// The name of the weapon, generally for UI purposes
+		/// </summary>
+		private string name;
+
+
+		/// <summary>
 		/// Used when raycast hits something while firing the weapon, this effect is 
 		/// instantiated at the hit point.
 		/// </summary>
@@ -74,6 +80,7 @@ namespace EliDavis.Characters.PlayerInGameControl.Weaponry{
 			this.impactEffect = null;
 			this.projectile = new ProjectileConfiguration();
 			this.projectileBased = false;
+			this.name = "Gun";
 
 		}
 
@@ -88,7 +95,8 @@ namespace EliDavis.Characters.PlayerInGameControl.Weaponry{
 			this.impactEffect = impactEffect;
 			this.projectile = new ProjectileConfiguration();
 			this.projectileBased = false;
-			
+			this.name = "Gun";
+
 		}
 
 
@@ -102,7 +110,8 @@ namespace EliDavis.Characters.PlayerInGameControl.Weaponry{
 			this.impactEffect = null;
 			this.projectile = projectile;
 			this.projectileBased = true;
-			
+			this.name = "Gun";
+
 		}
 
 
@@ -121,6 +130,15 @@ namespace EliDavis.Characters.PlayerInGameControl.Weaponry{
 
 			return false;
 
+		}
+
+		public string Name {
+			get {
+				return name;
+			}
+			set {
+				name = value;
+			}
 		}
 
 		public float Accuracy {

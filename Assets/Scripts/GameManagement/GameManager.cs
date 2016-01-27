@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using EliDavis.Characters;
+using EliDavis.Characters.PlayerInGameControl;
 
 namespace EliDavis.GameManagement {
 
@@ -52,6 +53,9 @@ namespace EliDavis.GameManagement {
 		private List<Character> friendlyList;
 
 
+		private MechConfiguration playerConfiguration;
+
+
 		private int enemiesDestroyed = 0;
 
 
@@ -72,6 +76,13 @@ namespace EliDavis.GameManagement {
 		public LevelSetting getCurrentLoadedSettings(){
 
 			return currentLoadedLevelSettings;
+
+		}
+
+
+		public void setPlayerMechConfiguration(MechConfiguration mechConfiguration){
+
+			this.playerConfiguration = mechConfiguration;
 
 		}
 
