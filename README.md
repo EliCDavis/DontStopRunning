@@ -83,16 +83,20 @@ Another component of the Weapon Configuration Struct is the [Projectile Configur
 
 I think alot of interesting and fun mechanics can come from projectile based weaponry and I want to explore different ammunition types dearly.
 
+![Projectile](http://i.imgur.com/ioX54GM.png)
+
 ## Game Modes
 
-#### Random Level
-Right now the only thing that could resemble a game mode is the one that is being procedurally generated with enemies being placed in their.  It needs to be expanded to have tasks/challenges added and allow for player customization to try out different weapons.
+##### Assault
+Right now the only thing that could resemble a game mode is the one that is being procedurally generated with enemies being placed in their.  It needs to be expanded to have tasks/challenges added and allow for player customization to try out different weapons.  Basically right now it's survive as long as possible and rack up as many kills as you can.  I would like to be able to save the greatest number of kills a player has gotten in a single round.  For this to work though that'd mean having to spawn more enemies so the player never runs out.
+
+##### Target challenge
+This game mode requires the player to destroy certain targets while avoiding damaging others.  Players are graded on how much they can destroy in a certain amount of time, or if they beat the time limit, their time.
+
+![Target Challenge Mode](http://i.imgur.com/m0OjTkG.jpg)
 
 #### Wanted Modes
 Some ideas I have for different play modes
-
-##### Target challenge
-Imagine super smash brothers mellee's target chanllenge where characters go through their own defined course.  This would have x amount of predefined courses where players try to destroy all the targets as quick as possible.  Players would be able to fine tune the mech to meet the appropriate challenge.
 
 ##### Base building
 This would be a major extension to the game, but a fun addition where a player could build their own base and then defend it from x amount of waves of enemies.  Players would be able to build their own turrets and other bots / traps to help assist them
